@@ -33,7 +33,7 @@ MainLayout.propTypes = {
 const LogoContainer = styled('div')(({ theme, open }) => ({
   position: 'fixed',
   top: 16,
-  left: open ? DRAWER_WIDTH + 16 : 16,
+  left: open ? DRAWER_WIDTH + 16 : 64,
   transition: theme.transitions.create(['left'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
