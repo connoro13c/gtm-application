@@ -26,10 +26,6 @@ const Main = styled('main')(({ theme, open }) => ({
   }),
 }));
 
-MainLayout.propTypes = {
-  children: PropTypes.node.isRequired,
-};
-
 const LogoContainer = styled('div')(({ theme, open }) => ({
   position: 'fixed',
   top: 16,
@@ -40,6 +36,10 @@ const LogoContainer = styled('div')(({ theme, open }) => ({
   }),
   zIndex: 1100,
 }));
+
+MainLayout.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 export default function MainLayout({ children }) {
   const [open, setOpen] = useState(true);
@@ -65,6 +65,8 @@ export default function MainLayout({ children }) {
             '& .MuiDrawer-paper': {
               width: DRAWER_WIDTH,
               boxSizing: 'border-box',
+              backgroundColor: '#F8F8F8',
+              zIndex: 1050
             },
           }}
           variant="persistent"
@@ -87,12 +89,16 @@ export default function MainLayout({ children }) {
               </IconButton>
             </Box>
           </Box>
-          {/* Add your navigation items here */}
         </Drawer>
         
         {!open && (
           <IconButton
-            sx={{ position: 'fixed', left: 16, top: 16 }}
+            sx={{ 
+              position: 'fixed', 
+              left: 16, 
+              top: 16,
+              zIndex: 1200
+            }}
             onClick={() => setOpen(true)}
           >
             <MenuIcon />
