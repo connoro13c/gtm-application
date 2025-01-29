@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Box, Drawer, IconButton, styled, ThemeProvider, createTheme } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import Logo from '../assets/Mono=False.png'
 
 const DRAWER_WIDTH = 240;
 
@@ -29,12 +30,34 @@ MainLayout.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
+const LogoContainer = styled('div')(({ theme, open }) => ({
+  position: 'fixed',
+  top: 16,
+  left: open ? DRAWER_WIDTH + 16 : 16,
+  transition: theme.transitions.create(['left'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  zIndex: 1100,
+}));
+
 export default function MainLayout({ children }) {
   const [open, setOpen] = useState(true);
 
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ display: 'flex' }}>
+        <LogoContainer open={open}>
+          <img 
+            src={Logo} 
+            alt="Company Logo"
+            style={{
+              height: '40px',
+              width: 'auto'
+            }}
+          />
+        </LogoContainer>
+
         <Drawer
           sx={{
             width: DRAWER_WIDTH,
@@ -48,10 +71,21 @@ export default function MainLayout({ children }) {
           anchor="left"
           open={open}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', p: 1 }}>
-            <IconButton onClick={() => setOpen(false)}>
-              <ChevronLeftIcon />
-            </IconButton>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            width: '100%' 
+          }}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'flex-end', 
+              p: 1 
+            }}>
+              <IconButton onClick={() => setOpen(false)}>
+                <ChevronLeftIcon />
+              </IconButton>
+            </Box>
           </Box>
           {/* Add your navigation items here */}
         </Drawer>
