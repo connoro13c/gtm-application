@@ -1,4 +1,4 @@
-import { Box, IconButton } from '@mui/material';
+import { Box, IconButton, ThemeProvider, createTheme } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
@@ -6,6 +6,15 @@ import { SideDrawer } from '@components/SideDrawer';
 import PropTypes from 'prop-types';
 
 const DRAWER_WIDTH = 240;
+
+const theme = createTheme({
+  palette: {
+    mode: 'dark',
+    background: {
+      default: '#242424'
+    }
+  }
+});
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
@@ -30,31 +39,37 @@ export const MainLayout = ({ children }) => {
   const [open, setOpen] = useState(true);
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <SideDrawer open={open} onClose={() => setOpen(false)} />
-      
-      {!open && (
-        <IconButton
-          sx={{
-            position: 'fixed',
-            left: 16,
-            top: 16,
-            backgroundColor: '#1a1a1a',
-            color: 'white',
-            '&:hover': {
-              backgroundColor: '#2a2a2a',
-            }
-          }}
-          onClick={() => setOpen(true)}
-        >
-          <MenuIcon />
-        </IconButton>
-      )}
-      
-      <Main open={open}>
-        {children}
-      </Main>
-    </Box>
+    <ThemeProvider theme={theme}>
+      <Box sx={{ 
+        display: 'flex', 
+        minHeight: '100vh',
+        backgroundColor: 'background.default'
+      }}>
+        <SideDrawer open={open} onClose={() => setOpen(false)} />
+        
+        {!open && (
+          <IconButton
+            sx={{
+              position: 'fixed',
+              left: 16,
+              top: 16,
+              backgroundColor: '#1a1a1a',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: '#2a2a2a',
+              }
+            }}
+            onClick={() => setOpen(true)}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
+        
+        <Main open={open}>
+          {children}
+        </Main>
+      </Box>
+    </ThemeProvider>
   );
 };
 
