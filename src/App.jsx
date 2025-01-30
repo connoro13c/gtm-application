@@ -1,9 +1,9 @@
-import MainLayout from '@layouts/MainLayout'
+import { MainLayout } from '@layouts/MainLayout'
 
 function App() {
   return (
     <MainLayout>
-      <h1>Welcome to Your Enterprise App</h1>
+      <h1>GTM Application</h1>
     </MainLayout>
   )
 }
