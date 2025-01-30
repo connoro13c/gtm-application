@@ -1,114 +1,63 @@
-import { useState } from 'react';
-import PropTypes from 'prop-types';
-import { Box, Drawer, IconButton, styled, ThemeProvider, createTheme } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import Logo from '../assets/Mono=False.png'
+import { useState } from 'react';
+import { SideDrawer } from '@components/SideDrawer';
+import PropTypes from 'prop-types';
 
 const DRAWER_WIDTH = 240;
 
-const theme = createTheme();
-
-const Main = styled('main')(({ theme, open }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  transition: theme.transitions.create('margin', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  marginLeft: `-${DRAWER_WIDTH}px`,
-  ...(open && {
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    flexGrow: 1,
+    padding: theme.spacing(3),
     transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
     }),
-    marginLeft: 0,
+    marginLeft: `-${DRAWER_WIDTH}px`,
+    ...(open && {
+      transition: theme.transitions.create('margin', {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      marginLeft: 0,
+    }),
   }),
-}));
+);
 
-const LogoContainer = styled('div')(({ theme, open }) => ({
-  position: 'fixed',
-  top: 16,
-  left: open ? DRAWER_WIDTH + 16 : 64,
-  transition: theme.transitions.create(['left'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  zIndex: 1100,
-}));
+export const MainLayout = ({ children }) => {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <SideDrawer open={open} onClose={() => setOpen(false)} />
+      
+      {!open && (
+        <IconButton
+          sx={{
+            position: 'fixed',
+            left: 16,
+            top: 16,
+            backgroundColor: '#1a1a1a',
+            color: 'white',
+            '&:hover': {
+              backgroundColor: '#2a2a2a',
+            }
+          }}
+          onClick={() => setOpen(true)}
+        >
+          <MenuIcon />
+        </IconButton>
+      )}
+      
+      <Main open={open}>
+        {children}
+      </Main>
+    </Box>
+  );
+};
 
 MainLayout.propTypes = {
   children: PropTypes.node.isRequired,
 };
-
-export default function MainLayout({ children }) {
-  const [open, setOpen] = useState(true);
-
-  return (
-    <ThemeProvider theme={theme}>
-      <Box sx={{ display: 'flex' }}>
-        <LogoContainer open={open}>
-          <img 
-            src={Logo} 
-            alt="Company Logo"
-            style={{
-              height: '40px',
-              width: 'auto'
-            }}
-          />
-        </LogoContainer>
-
-        <Drawer
-          sx={{
-            width: DRAWER_WIDTH,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-              width: DRAWER_WIDTH,
-              boxSizing: 'border-box',
-              backgroundColor: '#F8F8F8',
-              zIndex: 1050
-            },
-          }}
-          variant="persistent"
-          anchor="left"
-          open={open}
-        >
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column',
-            width: '100%' 
-          }}>
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'flex-end', 
-              p: 1 
-            }}>
-              <IconButton onClick={() => setOpen(false)}>
-                <ChevronLeftIcon />
-              </IconButton>
-            </Box>
-          </Box>
-        </Drawer>
-        
-        {!open && (
-          <IconButton
-            sx={{ 
-              position: 'fixed', 
-              left: 16, 
-              top: 16,
-              zIndex: 1200
-            }}
-            onClick={() => setOpen(true)}
-          >
-            <MenuIcon />
-          </IconButton>
-        )}
-        
-        <Main open={open}>
-          {children}
-        </Main>
-      </Box>
-    </ThemeProvider>
-  );
-}
