@@ -13,41 +13,34 @@
  * @param {Object} props
  * @param {React.ReactNode} props.children - Child components to render in the main content area
  */
-import { Box, IconButton, ThemeProvider, createTheme } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
 import { SideDrawer } from '@components/SideDrawer';
 import PropTypes from 'prop-types';
-import wallpaper from '../assets/WallpaperDimensionalSparks.png';
+import wallpaper from '../assets/Frame28.png';
 import { Header } from '@components/header';
 
 const DRAWER_WIDTH = 240;
-
-const theme = createTheme({
-  palette: {
-    mode: 'dark',
-    background: {
-      default: '#242424'
-    }
-  }
-});
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    marginLeft: `-${DRAWER_WIDTH}px`,
+    marginLeft: 0,
+    width: '100%',
     ...(open && {
-      transition: theme.transitions.create('margin', {
+      transition: theme.transitions.create(['margin', 'width'], {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
       }),
-      marginLeft: 0,
+      marginLeft: `${DRAWER_WIDTH}px`,
+      width: `calc(100% - ${DRAWER_WIDTH}px)`,
     }),
   }),
 );
@@ -62,27 +55,32 @@ export const MainLayout = ({ children }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <ThemeProvider theme={theme}>
-      <Box sx={{ 
-        display: 'flex', 
-        minHeight: '100vh',
-        minWidth: '100vw',
-        backgroundColor: 'background.default',
-        backgroundImage: `url(${wallpaper})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
-        overflow: 'hidden'
-      }}>
-        <SideDrawer open={open} onClose={() => setOpen(false)} />
-        <Header />
-        {!open && (
+    <Box sx={{ 
+      display: 'flex', 
+      minHeight: '100vh',
+      minWidth: '100vw',
+      background: 'none',
+      backgroundImage: `url(${wallpaper})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundAttachment: 'fixed',
+      overflow: 'hidden'
+    }}>
+      <SideDrawer open={open} onClose={() => setOpen(false)} />
+      {!open && (
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          position: 'fixed', 
+          left: 0, 
+          top: 0, 
+          zIndex: 1,
+          height: '64px' // Fixed height to match MUI's default AppBar height
+        }}>
           <IconButton
             sx={{
-              position: 'fixed',
-              left: 16,
-              top: 16,
+              marginLeft: 2,
               backgroundColor: '#1a1a1a',
               color: 'white',
               '&:hover': {
@@ -92,16 +90,21 @@ export const MainLayout = ({ children }) => {
             onClick={() => setOpen(true)}
           >
             <MenuIcon />
-            
           </IconButton>
-        )}
-        <Main open={open}>
-          {children}
-        </Main>
-        
-      </Box>
-      
-    </ThemeProvider>
+          <Box sx={{ 
+            marginLeft: 2,
+            display: 'flex',
+            alignItems: 'center',
+            height: '100%'
+          }}>
+            <Header size="large" />
+          </Box>
+        </Box>
+      )}
+      <Main open={open}>
+        {children}
+      </Main>
+    </Box>
   );
 };
 

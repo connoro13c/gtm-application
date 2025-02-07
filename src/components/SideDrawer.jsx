@@ -1,9 +1,9 @@
-import { Box, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import { Box, Drawer, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TagIcon from '@mui/icons-material/Tag';
 import PropTypes from 'prop-types';
+import { Header } from '@components/header';
 
 const DRAWER_WIDTH = 240;
 
@@ -18,39 +18,40 @@ export const SideDrawer = ({ open, onClose }) => {
           boxSizing: 'border-box',
           backgroundColor: '#1a1a1a',
           color: '#ffffff',
+          borderRight: '1px solid rgba(255, 255, 255, 0.12)',
         },
       }}
       variant="persistent"
       anchor="left"
       open={open}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', p: 2, justifyContent: 'space-between' }}>
-        <Typography variant="h6">GTM Manager</Typography>
-        <IconButton onClick={onClose} sx={{ color: 'white' }}>
-          <ChevronLeftIcon />
-        </IconButton>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        height: '100%'
+      }}>
+        <Header onClose={onClose} showCloseButton={true} />
+        <List>
+          <ListItem button>
+            <ListItemIcon sx={{ color: 'white' }}>
+              <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" />
+          </ListItem>
+          <ListItem button>
+            <ListItemIcon sx={{ color: 'white' }}>
+              <TagIcon />
+            </ListItemIcon>
+            <ListItemText primary="Tags" />
+          </ListItem>
+          <ListItem button>
+            <ListItemIcon sx={{ color: 'white' }}>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Settings" />
+          </ListItem>
+        </List>
       </Box>
-      
-      <List>
-        <ListItem button>
-          <ListItemIcon sx={{ color: 'white' }}>
-            <DashboardIcon />
-          </ListItemIcon>
-          <ListItemText primary="Dashboard" />
-        </ListItem>
-        <ListItem button>
-          <ListItemIcon sx={{ color: 'white' }}>
-            <TagIcon />
-          </ListItemIcon>
-          <ListItemText primary="Tags" />
-        </ListItem>
-        <ListItem button>
-          <ListItemIcon sx={{ color: 'white' }}>
-            <SettingsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Settings" />
-        </ListItem>
-      </List>
     </Drawer>
   );
 };
