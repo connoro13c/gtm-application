@@ -7,7 +7,7 @@ import { Header } from '@components/header';
 
 const DRAWER_WIDTH = 240;
 
-export const SideDrawer = ({ open, onClose }) => {
+export const SideDrawer = ({ open, activeSection }) => {
   return (
     <Drawer
       sx={{
@@ -30,21 +30,76 @@ export const SideDrawer = ({ open, onClose }) => {
         flexDirection: 'column',
         height: '100%'
       }}>
-        <Header onClose={onClose} showCloseButton={true} />
+        <Box sx={{
+          padding: '0px',
+          backgroundColor: '#343434',
+          borderRadius: '8px',
+          margin: '12px',
+        }}>
+          <Header size="large" />
+        </Box>
         <List>
-          <ListItem button>
+          <ListItem 
+            button
+            sx={{
+              position: 'relative',
+              '&::before': activeSection === 'dashboard' ? {
+                content: '""',
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: '4px',
+                backgroundColor: '#2927C0',
+                borderTopRightRadius: '4px',
+                borderBottomRightRadius: '4px'
+              } : {}
+            }}
+          >
             <ListItemIcon sx={{ color: 'white' }}>
               <DashboardIcon />
             </ListItemIcon>
             <ListItemText primary="Dashboard" />
           </ListItem>
-          <ListItem button>
+          <ListItem 
+            button
+            sx={{
+              position: 'relative',
+              '&::before': activeSection === 'tags' ? {
+                content: '""',
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: '4px',
+                backgroundColor: '#2927C0',
+                borderTopRightRadius: '4px',
+                borderBottomRightRadius: '4px'
+              } : {}
+            }}
+          >
             <ListItemIcon sx={{ color: 'white' }}>
               <TagIcon />
             </ListItemIcon>
             <ListItemText primary="Tags" />
           </ListItem>
-          <ListItem button>
+          <ListItem 
+            button
+            sx={{
+              position: 'relative',
+              '&::before': activeSection === 'settings' ? {
+                content: '""',
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: '4px',
+                backgroundColor: '#2927C0',
+                borderTopRightRadius: '4px',
+                borderBottomRightRadius: '4px'
+              } : {}
+            }}
+          >
             <ListItemIcon sx={{ color: 'white' }}>
               <SettingsIcon />
             </ListItemIcon>
@@ -58,5 +113,5 @@ export const SideDrawer = ({ open, onClose }) => {
 
 SideDrawer.propTypes = {
   open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
+  activeSection: PropTypes.string
 };
