@@ -1,11 +1,9 @@
-import { Box, IconButton, ListItemText } from '@mui/material';
-import { motion } from 'framer-motion';
+import { Box, IconButton, ListItemText, Collapse } from '@mui/material';
 import PropTypes from 'prop-types';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { colors } from '../../theme/colors';
 import { DRAWER_WIDTH } from './constants';
-
-const MotionBox = motion(Box);
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const navItemStyles = {
   position: 'relative',
@@ -19,49 +17,95 @@ const navItemStyles = {
   },
   borderRadius: '6px',
   margin: '0 8px',
-  width: props => props.isOpen ? `${DRAWER_WIDTH - 16}px` : '48px', // Account for margins
+  backgroundColor: 'transparent',
+  display: 'flex',
+  alignItems: 'center',
+  cursor: 'pointer'
 };
 
 const iconContainerStyles = {
-  position: 'absolute',
-  left: 0,
-  top: 0,
-  bottom: 0,
   width: '48px',
+  height: '40px',
   display: 'flex',
   justifyContent: 'center',
-  alignItems: 'center'
-};
-
-const textContainerStyles = {
-  position: 'absolute',
-  left: '48px',
-  top: 0,
-  bottom: 0,
-  display: 'flex',
   alignItems: 'center',
-  overflow: 'hidden',
-  whiteSpace: 'nowrap',
-  transition: theme => theme.transitions.create('width', {
-    easing: theme.transitions.easing.easeInOut,
-    duration: theme.transitions.duration.standard,
-  })
+  flexShrink: 0
 };
 
-const activeIndicatorVariants = {
-  inactive: { 
-    scaleY: 0,
-    opacity: 0 
-  },
-  active: { 
-    scaleY: 1,
-    opacity: 1,
-    transition: { 
-      type: "spring",
-      stiffness: 300,
-      damping: 30
-    }
-  }
+const SubNavItem = memo(({ 
+  icon: Icon, 
+  label, 
+  isActive, 
+  isOpen, 
+  onClick 
+}) => {
+  return (
+    <Box
+      component="button"
+      role="menuitem"
+      aria-label={label}
+      aria-current={isActive ? 'page' : undefined}
+      onClick={onClick}
+      tabIndex={0}
+      sx={{
+        ...navItemStyles,
+        width: isOpen ? `${DRAWER_WIDTH - 32}px` : '48px',
+        ml: isOpen ? 3 : 1,
+        height: '36px',
+        border: isActive ? `1px solid rgba(255, 255, 255, 0.1)` : 'none',
+        padding: 0,
+        cursor: 'pointer',
+        backgroundColor: isActive ? 'rgba(255, 255, 255, 0.03)' : 'transparent',
+        '&:hover': {
+          backgroundColor: isActive ? 'rgba(255, 255, 255, 0.06)' : colors.background.hover,
+        },
+        '&:focus-visible': {
+          outline: `1px solid rgba(255, 255, 255, 0.3)`,
+          outlineOffset: -1,
+        }
+      }}
+    >
+      <Box sx={{ ...iconContainerStyles, width: '36px' }}>
+        <IconButton 
+          sx={{ 
+            color: isActive ? colors.brand.red : colors.text.primary,
+            padding: '6px',
+            pointerEvents: 'none'
+          }}
+          tabIndex={-1}
+        >
+          <Icon fontSize="small" />
+        </IconButton>
+      </Box>
+      
+      {isOpen && (
+        <ListItemText 
+          primary={label} 
+          sx={{ 
+            margin: 0,
+            ml: 1,
+            flex: 1,
+            '.MuiTypography-root': {
+              color: isActive ? colors.brand.red : colors.text.primary,
+              fontWeight: isActive ? 500 : 400,
+              textAlign: 'left',
+              fontSize: '0.875rem'
+            }
+          }} 
+        />
+      )}
+    </Box>
+  );
+});
+
+SubNavItem.displayName = 'SubNavItem';
+
+SubNavItem.propTypes = {
+  icon: PropTypes.elementType.isRequired,
+  label: PropTypes.string.isRequired,
+  isActive: PropTypes.bool.isRequired,
+  isOpen: PropTypes.bool.isRequired,
+  onClick: PropTypes.func.isRequired
 };
 
 /**
@@ -74,89 +118,161 @@ export const NavItem = memo(({
   isActive, 
   isOpen, 
   onMouseEnter,
-  onClick 
+  onClick,
+  subItems,
+  route
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const hasSubItems = Array.isArray(subItems) && subItems.length > 0;
+  const isActiveParent = hasSubItems && subItems.some(item => item.id === isActive);
+
+  const handleClick = () => {
+    if (hasSubItems) {
+      setIsExpanded(!isExpanded);
+      onClick(route);
+    } else {
+      onClick(route);
+    }
+  };
+
   return (
-    <Box
-      component="button"
-      role="menuitem"
-      aria-label={label}
-      aria-current={isActive ? 'page' : undefined}
-      onClick={onClick}
-      onMouseEnter={onMouseEnter}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          onClick();
-        }
-      }}
-      tabIndex={0}
-      sx={{
-        ...navItemStyles,
-        isOpen,
-        border: 'none',
-        padding: 0,
-        cursor: 'pointer',
-        color: 'inherit',
-        backgroundColor: isActive ? `${colors.primary.main}20` : 'transparent',
-        '&:focus-visible': {
-          outline: `2px solid ${colors.primary.main}`,
-          outlineOffset: -2,
-        },
-        '&:hover': {
-          backgroundColor: isActive ? `${colors.primary.main}30` : colors.background.hover,
-        }
-      }}
-    >
-      <MotionBox
-        initial="inactive"
-        animate={isActive ? "active" : "inactive"}
-        variants={activeIndicatorVariants}
-        sx={{
-          position: 'absolute',
-          left: 0,
-          top: '4px',
-          bottom: '4px',
-          width: '4px',
-          backgroundColor: colors.primary.main,
-          borderTopRightRadius: '4px',
-          borderBottomRightRadius: '4px',
-          transformOrigin: 'left'
+    <>
+      <Box
+        component="button"
+        role="menuitem"
+        aria-label={label}
+        aria-current={isActive ? 'page' : undefined}
+        onClick={handleClick}
+        onMouseEnter={onMouseEnter}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            handleClick();
+          }
         }}
-      />
-      
-      <Box sx={iconContainerStyles}>
-        <IconButton 
-          sx={{ 
-            color: isActive ? colors.primary.main : colors.text.primary,
-            padding: '8px',
-            pointerEvents: 'none',
-            '&:hover': {
-              backgroundColor: 'transparent'
-            }
-          }}
-          tabIndex={-1}
-        >
-          <Icon />
-        </IconButton>
+        tabIndex={0}
+        sx={{
+          ...navItemStyles,
+          width: isOpen ? `${DRAWER_WIDTH - 16}px` : '48px',
+          border: (isActive || isActiveParent) ? `1px solid rgba(255, 255, 255, 0.1)` : 'none',
+          padding: 0,
+          backgroundColor: (isActive || isActiveParent) ? 'rgba(255, 255, 255, 0.03)' : 'transparent',
+          '&:hover': {
+            backgroundColor: (isActive || isActiveParent) ? 'rgba(255, 255, 255, 0.06)' : colors.background.hover,
+          },
+          '&:focus-visible': {
+            outline: `1px solid rgba(255, 255, 255, 0.3)`,
+            outlineOffset: -1,
+          }
+        }}
+      >
+        <Box sx={{ width: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <IconButton 
+            sx={{ 
+              color: (isActive || isActiveParent) ? colors.brand.red : colors.text.primary,
+              padding: '8px',
+              pointerEvents: 'none'
+            }}
+            tabIndex={-1}
+          >
+            <Icon />
+          </IconButton>
+        </Box>
+        
+        {isOpen && (
+          <>
+            <ListItemText 
+              primary={label} 
+              sx={{ 
+                margin: 0,
+                ml: 1,
+                flex: 1,
+                '.MuiTypography-root': {
+                  color: (isActive || isActiveParent) ? colors.brand.red : colors.text.primary,
+                  fontWeight: (isActive || isActiveParent) ? 500 : 400,
+                  textAlign: 'left'
+                }
+              }} 
+            />
+            {hasSubItems && (
+              <IconButton 
+                sx={{ 
+                  color: colors.text.primary,
+                  padding: '4px',
+                  mr: 1,
+                  transform: isExpanded ? 'rotate(90deg)' : 'none',
+                  transition: 'transform 0.3s ease'
+                }}
+                tabIndex={-1}
+              >
+                <ChevronRightIcon />
+              </IconButton>
+            )}
+          </>
+        )}
       </Box>
-      
-      <Box sx={{
-        ...textContainerStyles,
-        width: isOpen ? `${DRAWER_WIDTH - 64}px` : 0,
-      }}>
-        <ListItemText 
-          primary={label} 
-          sx={{ 
-            margin: 0, 
-            pl: 2,
-            '.MuiTypography-root': {
-              color: isActive ? colors.primary.main : colors.text.primary,
-              fontWeight: isActive ? 500 : 400
-            }
-          }} 
-        />
-      </Box>
-    </Box>
+
+      {hasSubItems && isOpen && (
+        <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+          <Box sx={{ py: 1 }}>
+            {subItems.map((item) => (
+              <Box
+                key={item.id}
+                component="button"
+                role="menuitem"
+                aria-label={item.label}
+                aria-current={isActive === item.id ? 'page' : undefined}
+                onClick={() => onClick(item.id)}
+                tabIndex={0}
+                sx={{
+                  ...navItemStyles,
+                  width: `${DRAWER_WIDTH - 32}px`,
+                  ml: 3,
+                  height: '36px',
+                  border: isActive === item.id ? `1px solid rgba(255, 255, 255, 0.1)` : 'none',
+                  padding: 0,
+                  backgroundColor: isActive === item.id ? 'rgba(255, 255, 255, 0.03)' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: isActive === item.id ? 'rgba(255, 255, 255, 0.06)' : colors.background.hover,
+                  },
+                  '&:focus-visible': {
+                    outline: `1px solid rgba(255, 255, 255, 0.3)`,
+                    outlineOffset: -1,
+                  }
+                }}
+              >
+                <Box sx={{ width: '36px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <IconButton 
+                    sx={{ 
+                      color: isActive === item.id ? colors.brand.red : colors.text.primary,
+                      padding: '6px',
+                      pointerEvents: 'none'
+                    }}
+                    tabIndex={-1}
+                  >
+                    <item.icon fontSize="small" />
+                  </IconButton>
+                </Box>
+                
+                <ListItemText 
+                  primary={item.label} 
+                  sx={{ 
+                    margin: 0,
+                    ml: 1,
+                    flex: 1,
+                    '.MuiTypography-root': {
+                      color: isActive === item.id ? colors.brand.red : colors.text.primary,
+                      fontWeight: isActive === item.id ? 500 : 400,
+                      textAlign: 'left',
+                      fontSize: '0.875rem'
+                    }
+                  }} 
+                />
+              </Box>
+            ))}
+          </Box>
+        </Collapse>
+      )}
+    </>
   );
 });
 
@@ -168,5 +284,11 @@ NavItem.propTypes = {
   isActive: PropTypes.bool.isRequired,
   isOpen: PropTypes.bool.isRequired,
   onMouseEnter: PropTypes.func.isRequired,
-  onClick: PropTypes.func.isRequired
+  onClick: PropTypes.func.isRequired,
+  route: PropTypes.string,
+  subItems: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    icon: PropTypes.elementType.isRequired,
+    label: PropTypes.string.isRequired
+  }))
 }; 

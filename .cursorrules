@@ -1,0 +1,255 @@
+Here is a PRD for the application I'm working on. Use this to guide your changes.
+
+Advanced Account Scoring Flow -------- Product Requirements Document (Revised)
+Overview
+The Advanced Account Scoring Flow is designed to balance a guided user experience with a data----heavy workflow, making the process intuitive for both sales representatives and sales operations users. The flow will guide users step----by----step, providing helpful prompts and defaults, while still exposing critical data and options transparently at decision points. This ensures users feel "hand----held" through the configuration without sacrificing visibility into the data driving the score. Ultimately, the goal is to ensure ease----of----use and high accuracy in the resulting account scores by combining user----friendly design with robust data science customization.
+
+User Flow
+The user flow will follow a clear, multi----step wizard----like process (with a progress indicator) that validates each step before allowing the user to proceed. This guided approach helps users navigate a complex setup in manageable chunks.
+​SURVEYSPARROW.COM
+. Below is the proposed sequence of steps in the flow:
+
+Data Source Selection – The user chooses a data source for account data (Salesforce (SFDC), Google Sheets, or Excel). The system connects to the chosen source and fetches a preview of the data.
+
+UI Details: Provide a simple connect screen for each source (e.g., OAuth for SFDC, file picker for Excel/Sheets) with instructions. Once connected, show the name of the dataset or object (for SFDC) and a few sample rows to confirm the correct data is loaded.
+Validation: Ensure the connection is successful and data is retrieved. If not, display an error and do not proceed.
+Data Selection & Field Tagging – The user selects which fields/columns will be used for scoring and tags their roles (e.g., outcome field, account attributes, etc.). This step is data-----heavy but remains guided by providing recommendations and previews.
+
+UI Details: Display an interactive field selection panel. The left side could list all available fields from the source; the right side will be sections for selected fields (such as "Account Identifier", "Target Outcome (label)", "Feature Attributes for Scoring", etc.). Users can drag----and----drop fields into the appropriate sections​
+CAPELLASOLUTIONS.COM
+. As fields are selected, a preview pane shows example data for those fields so users understand the content. The interface gives visual feedback (e.g. already----used fields are greyed out or marked) so it's clear which fields are in use​
+UX.STACKEXCHANGE.COM
+.
+Intelligent Defaults: The system will attempt auto----detection of key fields. For example, it might automatically identify a field named "Opportunity Status" as the target outcome or suggest "Annual Revenue" as an important feature. These recommendations are powered by machine learning patterns (with high accuracy, e.g. >95% in identifying column types​
+MEDIUM.COM
+) and industry best----practices. Recommended fields can be highlighted for the user with a prompt (e.g., "We suggest using Opportunity_Won as the target variable").
+Validation: Ensure the user has at least one target/outcome field selected and a minimum set of feature fields chosen. If required fields are missing or untagged, show a clear error (e.g., "Please select and tag the target outcome field before continuing"). Each tagged section should be complete before Next is enabled.
+Model Selection & Configuration – The user selects an ML model to generate the score, with the ability to choose from multiple algorithms (not just a default Random Forest).
+
+UI Details: Present a model selection dropdown or list with options such as Random Forest, Logistic Regression, Gradient Boosted Trees, or even a Hybrid/Ensemble approach. For each model option, provide a short description (e.g., "Random Forest – robust, non----linear model great for capturing complex interactions"). Default selection can be Random Forest (as a balanced choice), but users can switch as needed​
+HELP.ALTERYX.COM
+. If a hybrid or ensemble is selected, allow configuration (for example, combining a logistic and a tree model).
+Advanced Configuration: Offer basic hyperparameter settings for advanced users (e.g., tree depth, number of trees for Random Forest, regularization for Logistic Regression). Use progressive disclosure for these advanced settings – i.e., hide them under an "Advanced Settings" toggle so that novice users aren't overwhelmed​
+NNGROUP.COM
+. By default, use optimal preset values so the casual user can skip detailed tuning.
+Validation: Ensure a model is selected. If advanced settings are exposed, validate inputs (e.g., no negative values for iterations, etc.). The user should not proceed without choosing a model type.
+Weighting & Scoring Parameters – In this step, the user fine----tunes how different inputs contribute to the final score. This step is about adjusting weights or importance for fields or sub----scores and testing scenarios to ensure the scoring aligns with intuition.
+
+UI Details: Provide interactive sliders or controls for adjusting weights. For example, if the scoring model involves multiple score components (like a fit score vs. engagement score), allow the user to allocate weight percentages between them. As the user moves a slider, display real----time feedback – e.g., update a composite score preview or show how a sample account's score would change. This "what----if" capability lets users scenario test different weighting schemes before finalizing​
+TRUSTFULL.COM
+. If using a pure ML model (which internally weights features), this step can instead show the model's learned feature importances and allow the user to simulate changes (though not directly change the ML weights, they can see impact by temporarily scaling a feature's value to test effect).
+Scenario Testing: Include a small sandbox where users can pick an example account (or input hypothetical attribute values) and see the score outcome under the current model and weights. This helps validate that the scoring "makes sense" to users (e.g., if they increase "Employee Count", does the score go up as expected?).
+Validation: If the sum of weights must equal 100% (in certain models), ensure that constraint is met. If any weight adjustments could invalidate the model (for instance, setting all weights to zero), warn the user. Provide default weight distributions to start with, and require confirmation if the user makes extreme adjustments.
+Review & Confirmation – Finally, the user reviews a summary of the configured scoring model and confirms to finalize.
+
+UI Details: Show a summary page listing the key selections: data source used, number of records analyzed, selected fields, chosen model, any custom parameters, and the resulting example of scoring (e.g., "Top 5 accounts by this model" or model accuracy metrics). This page should also highlight any validation warnings (e.g., "Note: 2 accounts had missing values and were excluded from training").
+Accuracy Assurance: If possible, display an accuracy estimate or validation result – e.g., model precision/recall or an uplift vs. random selection, to give users confidence that the scoring is effective. Emphasize that proper configuration leads to more accurate scoring.
+The user can go Back to adjust any step or hit Confirm/Finish to save the scoring model. After confirmation, the scoring model would run on all accounts and output scores (e.g., write back to SFDC or output a sheet, depending on context – outside the scope of this configuration flow but noted as a next step).
+Throughout this flow, each step requires completion before moving on. The "Next" button remains disabled until the required actions in a step are done, and clear error messages guide the user to any missing pieces​
+SURVEYSPARROW.COM
+. Users can also navigate backwards to previous steps to make changes (with a warning if doing so might reset dependent configurations). The guided wizard ensures users follow the correct sequence, reducing the chance of errors or omissions, while still giving them insight into the data at every stage (via previews, examples, and recommendations).
+
+UI/UX Recommendations
+Designing the UI for this flow should focus on clarity, guidance, and interactivity, so that both a non----technical sales rep and a data----savvy sales ops person feel comfortable:
+
+Wizard Interface with Progress Indicators: Use a step----by----step wizard layout with a progress bar or step list. This clearly communicates where the user is in the process and how many steps remain. Each step page should have a concise instructional headline (e.g., "Select Your Data", "Choose a Model", etc.) and brief helper text if needed. This approach of breaking down a complex process into sequential steps is proven to improve usability​
+MASTERCARD.US
+.
+
+Guidance with Data Visibility: While the interface guides the user, it must also show relevant data context at each step. For example, when selecting fields, show sample data; when choosing a model, show a brief stat (like "estimated accuracy" or example outcome) for that model type; when adjusting weights, show the resulting score changes live. This keeps users informed about the data implications of each choice, maintaining transparency. The design should avoid "black box" feelings – for every decision (field selection, model choice, etc.), provide a rationale or data insight (e.g., "Field X has 10% missing data" or "Gradient Boosting often improves on Random Forest by handling interactions differently"). Such transparency builds trust that the scoring is accurate and based on real data.
+
+Interactive Field Selection: Implement a drag----and----drop UI for selecting and mapping fields to their roles. This visual approach (e.g., dragging a field from the "Available Fields" list into a "Selected Features" box) is intuitive and allows users to directly manipulate their schema mapping​
+CAPELLASOLUTIONS.COM
+. Include clear signifiers like icons or color codes for each field type (text, numeric, boolean, etc.) and highlight recommended fields. As fields are added or removed, use animations or highlights to provide feedback (e.g., a checkmark appears when a field is successfully tagged). Provide the field preview pane on the same screen – perhaps as a table at the bottom or a side panel that updates to show a few rows of any field the user focuses on or selects. This helps users verify they picked the correct fields. Additionally, consider a "Select All that Apply" shortcut for common groups of fields (e.g., a button to quickly add all contact----related fields).
+
+Auto----Detection & Suggestions: Use machine learning or predefined rules to auto----suggest important fields and configurations. For instance, the system might detect that a field has two values "Won/Lost" and suggest it as the outcome variable, or identify a field named "Industry" and suggest it might correlate with the outcome based on pattern analysis. Communicate these suggestions with subtle UI cues – e.g., highlight the field and provide a tooltip like "Recommended as target variable". Users can accept the suggestion with one click. This intelligent assistance speeds up configuration. Ensure these recommendations are accurate; as noted in industry research, ML can accurately identify column roles/types in datasets in many cases​
+MEDIUM.COM
+. However, always allow the user to override or ignore suggestions. The UI might have a "Review Suggestions" button that automatically selects/taggs fields which the user can then adjust as needed.
+
+Model Selection Dropdown with Descriptions: The model selection step should present options in a user----friendly manner. A radio button list or card layout can be used, where each model option has the name and a one----line description. For example:
+Logistic Regression – Good for interpretability; linear model providing odds of outcome.
+Random Forest – Good for accuracy; non----linear ensemble model that handles many variables well.
+Gradient Boosting – Great for complex patterns; iterative boosting of decision trees for high accuracy.
+Hybrid Model – Combine multiple algorithms; e.g., average of Logistic & Random Forest for balanced results.
+This helps users make an informed choice even if they aren't ML experts. Keep the default selection reasonable (perhaps Random Forest as it often performs well generally). If the user wants more info, an "Learn more" link could expand or pop up with details (but not required for basic flow). By using progressive disclosure for advanced settings​
+NNGROUP.COM
+, we ensure novice users see only the essentials (choice of model) while expert users can expand advanced options (like toggling hyperparameters or enabling an ensemble mode).
+
+Step----by----Step Validation & Feedback: Each step's UI should clearly indicate if something is missing or incorrect in real----time. For example, if the user tries to proceed without tagging a target field, the interface should immediately highlight the target field section in red with an error message. Inline validation messages (e.g., "Please select at least one feature field") guide the user to resolution. This immediate feedback aligns with best practices for multi----step forms to catch mistakes early and prevent frustration​
+SURVEYSPARROW.COM
+. Additionally, a small checkmark or "Step Complete" indicator can reassure the user once a step is properly filled out.
+
+Weight Adjustment Controls & Visualization: For the weighting step, use UI controls that make abstract numbers concrete. Sliders are a good choice for allocating weights (for instance, a slider bar for each category that totals 100%). As users adjust sliders, dynamically update a chart or a sample score output. One idea is to have a composite score bar that is segmented by factor, illustrating how each factor contributes to the total score (e.g., a stacked bar showing 40% from Fit, 30% from Engagement, etc., updating as sliders move). This kind of visualization helps users understand the impact of weighting at a glance. If feasible, allow the user to toggle a "What----if" mode where they can modify a sample account's attributes to see how the score would change, reinforcing understanding of the model's behavior​
+TRUSTFULL.COM
+. Keep these interactions snappy and visual to encourage experimentation without confusion.
+
+Clean, Intuitive Aesthetics: Because the target users range from sales reps to ops, the UI should use clear language (avoid overly technical jargon) and clean design. Use consistent icons (for example, a database icon for data source step, gears for model config, sliders icon for weighting, etc.) to reinforce the concept of each step. Employ tooltips or info icons for any term that might be unfamiliar ("What is Gradient Boosting?"). The layout should be uncluttered even though a lot of data is being shown; use collapsible sections or tabs within a step if needed to organize information (for instance, a tab for "Advanced Settings" in the model step). Always allow the user to review what they've done (e.g., maybe a side summary panel visible on larger screens listing selections so far).
+
+Responsiveness and Cross----Source Consistency: Ensure the UI behaves consistently regardless of data source. Whether the input is SFDC or Excel, the steps and options remain the same. Only the Data Selection step might visually differ (for SFDC, listing object fields; for Excel/Sheets, listing column headers), but the interactions (drag----drop, preview) should function identically. The design should also be responsive to different screen sizes (sales ops might use it on large monitors, reps might even view on a tablet). Test that the drag----drop and slider interactions are usable with both mouse and touch input.
+
+By following these UI recommendations, the Advanced Account Scoring Flow will provide a guided yet flexible experience. New users are led through the process with helpful defaults and visuals, while experienced users (like sales operations analysts) can dive deeper into customizations. This combination of hand----holding and optional advanced control will make the tool both easy to adopt and powerful in results. In essence, the design will follow the principle of "making easy things easy, and hard things possible", through a guided main path with escape hatches for advanced needs.
+
+Functional Requirements
+The following are the key functional requirements for the Advanced Account Scoring Flow. These ensure that all necessary capabilities are implemented to support the user experience described:
+
+Multi----Source Data Integration: The system must support connecting to Salesforce (SFDC), Google Sheets, and Excel as primary data sources for account data. This includes:
+
+Authentication/connection flows for each (e.g., OAuth for SFDC, file upload or API connect for Sheets).
+Fetching data (account records and related fields) from the source.
+Handling of data size limits or pagination (if a Sheet/Excel has many rows or SFDC returns large query results).
+The data fetched should be stored or cached securely for use in the scoring configuration process.
+Guided Multi----Step Wizard Flow: Implement the configuration as a sequence of steps (as outlined in User Flow). The UI should enforce the order of steps and only allow moving forward when the current step is completed and validated​
+SURVEYSPARROW.COM
+. Users should be able to navigate backward to previous steps without losing already----entered information (unless a change invalidates subsequent steps, in which case a warning and guided correction path should be provided). Each step corresponds to a logical grouping: Data Source, Data Selection, Model Selection, Weighting, and Review.
+
+Field Selection and Tagging Interface: Provide a functional interface for selecting which data fields to use:
+
+Display all available fields from the connected data source.
+Allow selecting/adding a field to one of several categories: at minimum, Identifier (unique account ID or name), Target Outcome (the field representing the result to predict, e.g., deal status), and Feature Inputs (predictor fields used for scoring). The system should support tagging fields accordingly.
+Drag----and----Drop functionality for moving fields into selection categories is required​
+CAPELLASOLUTIONS.COM
+. Alternatively, a multi----select with add buttons could be provided for accessibility, but drag----drop is the primary interaction.
+Real----time preview of data for selected fields. For example, if a user selects a field "Industry", they should be able to see a few example values (Manufacturing, Software, etc.) from the dataset to verify correctness.
+Auto----detection of key fields: The system should analyze available fields and suggest likely choices for Target Outcome and high----value features. This could be based on field name heuristics (e.g., contains "win", "churn", "revenue") or data patterns (e.g., a field that has boolean values or categorical outcomes). These suggestions should be programmatically generated and presented to the user (e.g., via a highlighted state or a popup that says "We found a field 'Opp_Status' that looks like a yes/no outcome – use this as Target?"). Accuracy of suggestions should be high, leveraging ML techniques (similar to how column type detection can exceed 95% accuracy​
+MEDIUM.COM
+).
+Validation: The system must ensure at least one Target Outcome field is selected, and a reasonable number of Feature fields (perhaps enforce a minimum of, say, 3 features or provide a warning if less). If any required category is empty, the user cannot proceed. Also, if a field is selected in multiple categories erroneously, prompt the user to fix (typically a field should only belong to one category).
+Model Selection and Configuration: Enable the user to choose and configure the predictive model used for scoring:
+
+Model Choices: Include support for at least the following algorithms: Random Forest, Logistic Regression, Gradient Boosted Trees (e.g., XGBoost or similar), and an option for a Hybrid/Ensemble approach. The hybrid could be a combination of models (for example, averaging two models' outputs or using one model's output as feature in another). The UI provides these choices clearly​
+HELP.ALTERYX.COM
+.
+Default & Custom Settings: If the user does not wish to configure further, the system should use default hyperparameters for the chosen model (these defaults should be chosen to be robust for typical use cases, possibly based on industry best practices). For users who want to fine----tune:
+Provide adjustable parameters per model (e.g., number of trees for Random Forest, regularization strength for Logistic, learning rate and estimators for Gradient Boosting).
+Allow enabling/disabling features like cross----validation or automatic hyperparameter tuning as an advanced option.
+Compatibility: The system must handle different data types appropriately for each model (e.g., one----hot encode categorical for logistic regression, etc.) behind the scenes, or prompt the user if something is not usable (like text fields might be ignored or require encoding).
+Validation: Ensure a model choice is made. If user enters custom parameters, validate the ranges/format. If a combination/hybrid is chosen, make sure the necessary sub----choices are completed (e.g., if user picks "Hybrid", they might need to pick two base models to combine – enforce that).
+Training Process: Although mostly back----end, the PRD mandates that once the user finalizes the setup, the system will train the model on the provided data. This should be done efficiently, and the user could be shown a loading/progress indicator. Any errors in training (e.g., target field has invalid data) should be caught and reported gracefully.
+Weighting and Scoring Adjustments: If the scoring approach includes adjustable weights (for example, combining multiple scores or emphasizing certain factors), implement the following:
+
+Ability for the user to adjust weight sliders or input percentages for defined categories (the categories might be automatically determined or user----defined if applicable; e.g., if using a purely ML model, explicit weighting might not apply except in an ensemble scenario or if combining a manual score).
+Reflect these adjustments in real----time in the UI by recalculating an example outcome or showing a visualization. The recalculation can be done on a small sample of data or a representative account to give immediate feedback.
+Provide a "reset to default weights" option in case the user wants to undo their changes back to a recommended setting.
+Scenario Testing Mode: The system should allow users to test different scenarios. This could be implemented as a small form where a user can manually input or tweak values for the key features and see what score the model would produce for those inputs. This doesn't affect the model; it's a what----if analysis sandbox​
+TRUSTFULL.COM
+. It helps users verify that the model aligns with expectations (ensuring confidence in accuracy).
+Validation: If weights must sum to a specific value (like 100%), ensure that in code (prevent proceeding until the total = 100%, or auto----normalize the weights and inform the user). If any weight is set to zero or extremely high, maybe warn if that could cause an odd outcome (not strictly necessary, but guardrails can be included, e.g., "Setting engagement weight to 0% will ignore that factor entirely – is this intended?").
+Review and Confirmation: Before finalizing:
+
+Present a read----only summary of all selections (data source, fields used, model chosen, any custom settings, weights).
+Show any validation metrics or checks. For instance, after model training, show the model's accuracy (if a hold----out test was done) or at least a message like "Model trained successfully on 5,000 accounts. Accuracy: 85% on test set." This gives a sense of scoring quality (ensuring accuracy is front----of----mind).
+If the system can detect issues (e.g., "We noticed 3 features had over 20% missing data which may affect accuracy"), list them as warnings or notes.
+The user must confirm to save/deploy the model. Once confirmed, the configuration is locked in and the model can be used to score current and new accounts.
+Integration of Results: (Depending on scope, but likely needed) After confirmation, the system will apply the scoring model to the accounts data:
+
+If SFDC: write the scores back to a field on each Account record or prepare a report that can be imported to SFDC.
+If Google Sheets/Excel: output a new sheet or file with a column of scores aligned to each account row.
+Ensure the scoring can be refreshed (either on demand or on a schedule) if new data comes in. The PRD should ensure the design allows re----running the flow or updating it as needed (though actual scheduling may be future enhancement).
+This requirement ensures end----to----end functionality so that users see the outcome of their configuration in the tools they use daily.
+Error Handling and User Guidance: For all the above functionality, robust error handling is required. Examples:
+
+Connection errors for data sources should prompt the user to retry or check credentials.
+If data is in an unexpected format (e.g., non----numeric values in a numeric field), the system should either handle it or inform the user to clean the data.
+Each step's critical failures should be communicated with actionable messages (not just "Error X123 occurred"). For instance, "Model training failed due to insufficient data in the target field. Please select a target field with at least 50 positive examples." This ties back to the guided experience even in failure cases.
+Logging of actions (not user----facing, but for internal troubleshooting) should be in place to support debugging any issues that users encounter.
+In summary, the functional requirements ensure that the Advanced Account Scoring Flow supports a full journey from data input to model output, with an emphasis on guidance, validation, and flexibility. All features must work seamlessly with SFDC, Google Sheets, or Excel data, providing a consistent and reliable experience regardless of source.
+
+Success Metrics
+To determine if the revised Advanced Account Scoring Flow meets its objectives, we will track the following success metrics:
+
+User Adoption Rate: Percentage of target users (sales reps, sales ops) who actively use the new scoring flow within a defined period (e.g., first 3 months after launch). A high adoption (e.g., >80% of sales ops configure at least one scoring model, and >50% of reps reference the scores) will indicate the tool is intuitive and valuable.
+
+Configuration Completion Time: Average time taken to complete the scoring setup. The goal is to reduce the time and effort compared to the previous process. For example, if historically it took an ops user 2 hours to create a scoring model (gathering data, running scripts, etc.), the new guided flow should allow completion in maybe 30 minutes or less for a typical use case. We will measure the median time from starting the wizard to finishing it. A successful outcome is a significant drop in setup time without sacrificing quality.
+
+Error Reduction: Track the frequency of configuration errors or invalid setups. Thanks to step validation and guidance, we expect fewer cases of users ending up with misconfigured models (such as using the wrong field as target or forgetting to normalize weights). We can measure this by counting support tickets/issue reports related to scoring configuration, or by internal flags (e.g., if we detect a model was saved with 0 features or other anomaly). The target is to reduce such error occurrences by X% relative to the old method.
+
+Scoring Accuracy Improvement: Although accuracy depends on data, we aim to improve the average effectiveness of the scoring models created. This can be measured by back----testing models on historical data (if available) or via user feedback on score quality. For instance, if using a known dataset, the new tool's ML models might achieve higher predictive performance (e.g., average AUC or lift) than manually crafted scores. A quantitative goal could be "Models built through this flow show a 10% improvement in predictive accuracy on average compared to the previous scoring approach." Ensuring the ability to choose advanced algorithms is a key factor here, as it allows better fitting the data.
+
+User Satisfaction and Confidence: Gather qualitative and quantitative feedback from users. This could be via a satisfaction survey after using the tool (aim for high ratings on ease----of----use and confidence in the results). Specifically, measure agreement with statements like "The configuration process was easy to follow," and "I trust the accuracy of the scores produced." Success would be, say, >90% of respondents agreeing or strongly agreeing. Additionally, track feature----specific feedback: Do users feel the suggestions were helpful? Did they use the scenario testing and find it useful? This can guide further tweaks.
+
+Guided vs. Advanced Usage Balance: We want to see usage by both novice and power users. Metrics could include: what percentage of users stick with all defaults (novice behavior) versus how many open the advanced settings or change the algorithm (power user behavior). Success is if both types of usage are present and users achieve their goals. If 100% of users never touch advanced settings, perhaps we made the default too hidden (or maybe that's fine if not needed). If many are using advanced options, it means the feature is valued. We will monitor this to ensure the flow indeed serves both personas.
+
+Decrease in Iteration/Cycles: In older processes, users might have had to iterate several times to get the model right (due to lack of guidance). With scenario testing and immediate feedback, we expect users to need fewer re----runs. We can measure how often a user edits an already created model or re----runs the flow for the same purpose. A lower number of reiterations suggests they got it right the first time with the wizard's help, indicating success in making the flow intuitive and accurate.
+
+Business Impact: Ultimately, the purpose of account scoring is to drive better sales outcomes. As a long----term metric, we can look at whether sales teams focusing on high----scoring accounts see improved conversion rates or pipeline efficiency. While many factors influence sales, a successful scoring system should correlate with positive trends (e.g., higher win rates for top----tier scored accounts). If after implementation, the sales org reports that they can prioritize more effectively and close deals faster on average, that's a strong indicator of success. This is more qualitative, but important to note as a north----star outcome.
+
+Each of these metrics will be tracked post----launch. We will use analytics within the app to track usage patterns (for adoption and behavior metrics), system logs for errors, and model performance logs for accuracy data. User feedback will be collected through surveys and interviews. Hitting these success metrics will mean the Advanced Account Scoring Flow has achieved its goal of providing a user----friendly yet powerful way to configure account scoring, satisfying both ease----of----use for reps and configurability/accuracy for ops.
+
+// Cursor Rules for GTM Application Development
+
+// Code Organization
+- Keep components in appropriate directories (src/components)
+- Use index.js files for clean exports
+- Maintain clear separation of concerns between components, services, and utilities
+
+// Naming Conventions
+- Use PascalCase for component names (e.g., AccountScoring)
+- Use camelCase for functions and variables
+- Use UPPER_CASE for constants
+
+// Testing Guidelines
+- Write tests for all new components and features
+- Place test files in src/__tests__ directory
+- Name test files as ComponentName.test.js
+- Test user interactions and critical functionality
+- Run tests before committing changes (npm test)
+- Update tests when modifying existing features
+- Test edge cases (error states, loading states, empty states)
+- Keep tests focused and specific
+- Consider Test Driven Development approach
+
+// Test Structure Example:
+/*
+describe('ComponentName', () => {
+  it('should render correctly', () => {
+    // Test basic rendering
+  });
+
+  it('should handle user interactions', () => {
+    // Test clicks, inputs, etc.
+  });
+
+  it('should handle edge cases', () => {
+    // Test error states, loading, etc.
+  });
+});
+*/
+
+// Style Guidelines
+- Use Material-UI components for consistency
+- Follow theme color scheme from src/theme/colors
+- Maintain responsive design principles
+- Use proper spacing and typography hierarchy
+
+// State Management
+- Use React hooks for local state
+- Keep form data in parent components
+- Pass callbacks for state updates
+
+// Error Handling
+- Implement proper error boundaries
+- Show user-friendly error messages
+- Log errors for debugging
+
+// Performance
+- Optimize re-renders using useMemo/useCallback where needed
+- Lazy load components when appropriate
+- Keep bundle size in check
+
+// Documentation
+- Add JSDoc comments for complex functions
+- Document component props using PropTypes
+- Keep README updated with new features
+
+// Git Practices
+- Write clear commit messages
+- Create feature branches for new development
+- Review code before merging
+
+// Accessibility
+- Maintain proper ARIA labels
+- Ensure keyboard navigation works
+- Test with screen readers
+
+// These rules should be followed for all new development and modifications
+// to ensure consistency and maintainability of the codebase.

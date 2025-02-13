@@ -15,69 +15,90 @@
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useState, useCallback } from 'react';
+import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import wallpaper from '../assets/Frame28.png';
 import { SideDrawer, DRAWER_WIDTH } from '../components/SideDrawer';
+import { PageHeader } from '../components/PageHeader';
+import { NAV_ITEMS } from '../components/SideDrawer/constants';
+import { colors } from '../theme/colors';
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
+    paddingTop: '88px', // Account for header height (64px) + spacing
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.easeInOut,
+      duration: theme.transitions.duration.standard,
     }),
-    marginLeft: 0,
-    width: '100%',
+    marginLeft: '64px',
     ...(open && {
-      transition: theme.transitions.create(['margin', 'width'], {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
       marginLeft: `${DRAWER_WIDTH}px`,
-      width: `calc(100% - ${DRAWER_WIDTH}px)`,
     }),
   }),
 );
 
-export const MainLayout = ({ children, activeSection, onNavigate }) => {
+export const MainLayout = () => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  // If we're at the root path (/), set activeSection to '/'
+  const activeSection = location.pathname === '/' ? '/' : location.pathname.slice(1);
 
   const handleDrawerMouseLeave = useCallback(() => {
     setOpen(false);
   }, []);
 
+  const handleNavigate = useCallback((section) => {
+    navigate(section); // No need to modify the path, just navigate directly
+  }, [navigate]);
+
+  const handleLogoClick = useCallback(() => {
+    navigate('home');
+  }, [navigate]);
+
+  const getPageTitle = () => {
+    if (activeSection === '/') return 'Home';
+    
+    const [section, subSection] = activeSection.split('/');
+    const parentItem = NAV_ITEMS.find(item => item.id === section);
+    
+    if (!parentItem) return 'Home';
+    
+    if (subSection && parentItem.subItems) {
+      const subItem = parentItem.subItems.find(item => item.id === `${section}/${subSection}`);
+      return subItem ? subItem.label : parentItem.label;
+    }
+    
+    return parentItem.label;
+  };
+
   return (
     <Box sx={{ 
-      display: 'flex', 
+      display: 'flex',
       minHeight: '100vh',
-      minWidth: '100vw',
-      background: 'none',
-      backgroundImage: `url(${wallpaper})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
-      backgroundAttachment: 'fixed',
-      overflow: 'hidden'
+      backgroundColor: colors.background.default,
     }}>
       <SideDrawer
         open={open}
         activeSection={activeSection}
         onOpenChange={setOpen}
         onMouseLeave={handleDrawerMouseLeave}
-        onNavigate={onNavigate}
+        onNavigate={handleNavigate}
+        onLogoClick={handleLogoClick}
       />
+      <PageHeader title={getPageTitle()} />
       <Main open={open}>
-        {children}
+        <Outlet />
       </Main>
     </Box>
   );
 };
 
 MainLayout.propTypes = {
-  children: PropTypes.node.isRequired,
-  activeSection: PropTypes.oneOf(['home', 'tags', 'settings']),
-  onNavigate: PropTypes.func.isRequired
+  children: PropTypes.node,
+  activeSection: PropTypes.string,
+  onNavigate: PropTypes.func
 };
 
 

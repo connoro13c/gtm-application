@@ -116,8 +116,7 @@ export const Logo = ({ isOpen, onLogoClick }) => {
             height: '24px',
             width: 'auto',
             objectFit: 'contain',
-            marginLeft: '8px',
-            marginRight: '8px',
+            marginLeft: '14px',
             display: isWordmarkLoaded && !hasWordmarkError ? 'block' : 'none'
           }}
         />

@@ -4,6 +4,9 @@ export const colors = {
     dark: '#1E1C9F',
     light: '#4341D1'
   },
+  brand: {
+    red: '#F96216' // Sourcegraph's red/orange color
+  },
   background: {
     default: '#1a1a1a',
     paper: '#343434',

@@ -33,8 +33,12 @@ export const SideDrawer = ({
   }, [onOpenChange]);
 
   const handleLogoClick = useCallback(() => {
-    onOpenChange(true);
-  }, [onOpenChange]);
+    onNavigate('/');
+  }, [onNavigate]);
+
+  const handleNavItemClick = useCallback((id) => {
+    onNavigate(id);
+  }, [onNavigate]);
 
   return (
     <SideDrawerErrorBoundary>
@@ -42,55 +46,62 @@ export const SideDrawer = ({
         role="navigation"
         aria-label="Main Navigation"
         onMouseLeave={onMouseLeave}
-        sx={{ position: 'fixed', left: 0, top: 0, bottom: 0, zIndex: 1 }}
+        sx={{ 
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: open ? DRAWER_WIDTH : '64px',
+          backgroundColor: colors.background.default,
+          transition: theme => theme.transitions.create('width', {
+            easing: theme.transitions.easing.easeInOut,
+            duration: theme.transitions.duration.standard,
+          }),
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          zIndex: 2,
+          borderRight: `1px solid ${colors.border.drawer}`
+        }}
       >
-        <Box sx={{ display: 'flex', height: '100%' }}>
-          {/* Static left sidebar with icons */}
-          <Box sx={{
-            width: '64px',
-            height: '100%',
-            backgroundColor: colors.background.default,
-            position: 'relative',
-            zIndex: 2,
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <Logo isOpen={open} onLogoClick={handleLogoClick} />
+        <Logo isOpen={open} onLogoClick={handleLogoClick} />
 
-            {/* Navigation Items */}
-            <Box 
-              component="nav"
-              role="menu"
-              sx={{ paddingTop: '24px', flex: 1 }}
-            >
-              {NAV_ITEMS.map(({ id, icon, label }) => (
-                <NavItem
-                  key={id}
-                  icon={icon}
-                  label={label}
-                  isActive={activeSection === id}
-                  isOpen={open}
-                  onMouseEnter={handleIconHover}
-                  onClick={() => onNavigate(id)}
-                />
-              ))}
-            </Box>
-          </Box>
-
-          {/* Animated drawer portion */}
-          <Box
-            sx={{
-              width: open ? `${DRAWER_WIDTH - 64}px` : 0,
-              backgroundColor: colors.background.default,
-              borderRight: open ? `1px solid ${colors.border.drawer}` : 'none',
-              transition: theme => theme.transitions.create(['width'], {
-                easing: theme.transitions.easing.easeInOut,
-                duration: theme.transitions.duration.standard,
-              }),
-              overflow: 'hidden',
-              zIndex: 1
-            }}
-          />
+        <Box 
+          component="nav"
+          role="menu"
+          sx={{ 
+            flex: 1,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            mt: 3,
+            '&::-webkit-scrollbar': {
+              width: '4px',
+            },
+            '&::-webkit-scrollbar-track': {
+              background: 'transparent',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: colors.border.drawer,
+              borderRadius: '4px',
+              '&:hover': {
+                background: colors.text.secondary,
+              },
+            },
+          }}
+        >
+          {NAV_ITEMS.map(({ id, icon, label, subItems }) => (
+            <NavItem
+              key={id}
+              icon={icon}
+              label={label}
+              isActive={activeSection}
+              isOpen={open}
+              onMouseEnter={handleIconHover}
+              onClick={handleNavItemClick}
+              subItems={subItems}
+              route={id}
+            />
+          ))}
         </Box>
       </Box>
     </SideDrawerErrorBoundary>
@@ -99,7 +110,7 @@ export const SideDrawer = ({
 
 SideDrawer.propTypes = {
   open: PropTypes.bool.isRequired,
-  activeSection: PropTypes.oneOf(NAV_ITEMS.map(item => item.id)),
+  activeSection: PropTypes.string.isRequired,
   onOpenChange: PropTypes.func.isRequired,
   onMouseLeave: PropTypes.func.isRequired,
   onNavigate: PropTypes.func.isRequired
