@@ -1,0 +1,6 @@
+account_id,account_name,industry,employee_count,annual_revenue,last_interaction_date,interaction_count,deal_status,score
+ACC001,Acme Corp,Software,500,5000000,2024-02-10,25,Won,92
+ACC002,Beta Industries,Manufacturing,1200,12000000,2024-02-09,15,Lost,45
+ACC003,Gamma Tech,Technology,300,3000000,2024-02-08,30,Won,88
+ACC004,Delta Services,Services,800,8000000,2024-02-07,20,Open,75
+ACC005,Epsilon Ltd,Retail,150,1500000,2024-02-06,10,Lost,35 
