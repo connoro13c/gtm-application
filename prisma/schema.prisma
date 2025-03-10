@@ -1,0 +1,161 @@
+// GTM Application Prisma Schema
+// Defines all database models for the application
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication and authorization
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  scenarios      Scenario[]       @relation("CreatedByUser")
+  scenarioResults ScenarioResult[] @relation("RunByUser")
+}
+
+enum Role {
+  USER
+  ADMIN
+  MANAGER
+  ANALYST
+}
+
+// Account model for customer/prospect data
+model Account {
+  id          String   @id @default(uuid())
+  name        String
+  industry    String
+  revenue     Float?
+  employees   Int?
+  website     String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  segment    Segment?  @relation(fields: [segmentId], references: [id])
+  segmentId  String?
+  territory  Territory? @relation(fields: [territoryId], references: [id])
+  territoryId String?
+  scores     AccountScore[]
+  contacts   Contact[]
+}
+
+// Contact model for people associated with accounts
+model Contact {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String?
+  phone     String?
+  title     String?
+  isDecisionMaker Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+}
+
+// Segment model for account categorization
+model Segment {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  criteria    Json?
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  accounts Account[]
+}
+
+// Territory model for geographic segmentation
+model Territory {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  region      String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  accounts Account[]
+}
+
+// AccountScore model for tracking account health/potential scores
+model AccountScore {
+  id        String   @id @default(uuid())
+  score     Float
+  date      DateTime @default(now())
+  notes     String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId String
+}
+
+// Scenario model for GTM planning scenarios
+model Scenario {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      ScenarioStatus @default(DRAFT)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  lastRunAt   DateTime?
+
+  // Relations
+  createdBy   User    @relation("CreatedByUser", fields: [createdById], references: [id])
+  createdById String
+  parameters  ScenarioParameter[]
+  results     ScenarioResult[]
+}
+
+enum ScenarioStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+// ScenarioParameter model for scenario configuration
+model ScenarioParameter {
+  id          String   @id @default(uuid())
+  name        String
+  value       Json
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  scenario   Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  scenarioId String
+}
+
+// ScenarioResult model for storing scenario execution results
+model ScenarioResult {
+  id        String   @id @default(uuid())
+  results   Json
+  createdAt DateTime @default(now())
+
+  // Relations
+  scenario   Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  scenarioId String
+  runBy      User     @relation("RunByUser", fields: [runById], references: [id])
+  runById    String
+}

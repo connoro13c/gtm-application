@@ -1,37 +1,67 @@
+/**
+ * Main server file for the GTM Application
+ * Sets up Express server with middleware and routes
+ */
+
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import dotenv from 'dotenv';
-import sequelize from './config/database.js';
+import { PrismaClient } from '@prisma/client';
 
-// Import routes (to be created)
-import sessionRoutes from './routes/sessions.js';
-import modelRoutes from './routes/models.js';
-import resultRoutes from './routes/results.js';
+// Import routes
+import accountRoutes from './routes/accounts.js';
+import scenarioRoutes from './routes/scenarios.js';
+import segmentationRoutes from './routes/segmentation.js';
+import insightsRoutes from './routes/insights.js';
+import authRoutes from './routes/auth.js';
 
+// Load environment variables
 dotenv.config();
 
+// Initialize Prisma client
+const prisma = new PrismaClient();
+
+// Create Express app
 const app = express();
-const port = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(helmet()); // Security headers
+app.use(cors()); // Enable CORS
+app.use(express.json()); // Parse JSON bodies
 
-// Routes
-app.use('/api/sessions', sessionRoutes);
-app.use('/api/models', modelRoutes);
-app.use('/api/results', resultRoutes);
+// API routes
+app.use('/api/accounts', accountRoutes);
+app.use('/api/scenarios', scenarioRoutes);
+app.use('/api/segmentation', segmentationRoutes);
+app.use('/api/insights', insightsRoutes);
+app.use('/api/auth', authRoutes);
 
-// Database connection and sync
-sequelize.sync()
-  .then(() => {
-    console.log('Database synced successfully');
-  })
-  .catch((error) => {
-    console.error('Error syncing database:', error);
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
   });
+});
 
 // Start server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-}); 
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+// Handle graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  await prisma.$disconnect();
+  process.exit(0);
+});
+
+export default app;
