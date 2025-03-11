@@ -26,6 +26,11 @@ const DataMapping = ({ data, updateData }) => {
     mapped: 0,
     percentage: 0
   });
+  const [mappingStep, setMappingStep] = useState('all'); // 'critical' or 'all'
+  const [mappingStatus, setMappingStatus] = useState({
+    isComplete: false,
+    isCriticalComplete: false
+  });
   
   // Refs for drag and drop functionality
   const dragSourceRef = useRef(null);
@@ -45,6 +50,17 @@ const DataMapping = ({ data, updateData }) => {
         total: sourceFields.length,
         mapped: mappedCount,
         percentage
+      });
+      
+      // Update mapping status
+      const isComplete = percentage === 100;
+      const criticalFields = sourceFields.filter(field => field.id.includes('account_id') || field.id.includes('company_name'));
+      const mappedCriticalFields = criticalFields.filter(field => mappedFields[field.id]);
+      const isCriticalComplete = mappedCriticalFields.length === criticalFields.length;
+      
+      setMappingStatus({
+        isComplete,
+        isCriticalComplete
       });
     }
   }, [mappedFields, sourceFields]);
