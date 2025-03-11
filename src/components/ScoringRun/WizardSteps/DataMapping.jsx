@@ -26,7 +26,6 @@ const DataMapping = ({ data, updateData }) => {
     mapped: 0,
     percentage: 0
   });
-  const [mappingStep, setMappingStep] = useState('initial'); // 'initial', 'critical', 'required', 'optional'
   
   // Refs for drag and drop functionality
   const dragSourceRef = useRef(null);
@@ -330,16 +329,6 @@ const DataMapping = ({ data, updateData }) => {
     );
   };
 
-  // Define mapping status based on mapping progress
-  const mappingStatus = {
-    isCriticalComplete: true, // This would be calculated based on actual mappings
-    isComplete: mappingProgress.percentage >= 100,
-    criticalMapped: 2, // Example values - would be calculated in real implementation
-    criticalTotal: 2,
-    requiredMapped: mappingProgress.mapped,
-    requiredTotal: mappingProgress.total
-  };
-  
   // Calculate overall progress percentage
   const progressPercentage = mappingProgress.percentage;
   
@@ -472,7 +461,7 @@ const DataMapping = ({ data, updateData }) => {
                                 tabIndex="0"
                                 aria-label={`Accept suggestion for ${field.name}`}
                               >
-                                <Check size={12} aria-hidden="true" />
+                                <Check size={12} />
                               </button>
                             </div>
                           ) : (
@@ -503,27 +492,18 @@ const DataMapping = ({ data, updateData }) => {
           </div>
         </div>
       )}
-      {/* Mapping Progress - Simple Version */}
-      <div className="mt-6">
-        <div className="flex items-center justify-between mb-2">
-          <h4 className="font-medium text-white">Mapping Progress</h4>
-          <div className="text-sm text-gray-300">
-            {mappingProgress.mapped} of {mappingProgress.total} fields mapped
-          </div>
-        </div>
-        
-        {/* Progress bar */}
-        <div className="h-2 w-full bg-gray-700 rounded">
-          <div 
-            className={`h-full rounded ${
-              progressPercentage >= 100 ? 'bg-green-500' : 
-              progressPercentage >= 70 ? 'bg-blue-500' : 
-              progressPercentage >= 30 ? 'bg-yellow-500' : 'bg-red-500'
-            }`} 
-            style={{width: `${progressPercentage}%`}}
-          />
-        </div>
-      </div>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-medium text-white">Mapping Progress</h4>
+              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                mappingStep === 'critical' 
+                  ? (!mappingStatus.isCriticalComplete ? 'bg-vermilion-7 bg-opacity-20 text-vermilion-7' : 'bg-green-6 bg-opacity-20 text-green-6')
+                  : mappingStatus.isComplete ? 'bg-green-6 bg-opacity-20 text-green-6' : 'bg-amber-500 bg-opacity-20 text-amber-500'
+              }`}>
+                {mappingStep === 'critical' 
+                  ? (mappingStatus.isCriticalComplete ? 'Critical Fields Mapped' : 'Critical Fields Needed') 
+                  : (mappingStatus.isComplete ? 'Complete' : 'In Progress')}
+              </div>
+            </div>
 
       {/* Tips section */}
       <div className="mt-8 p-4 bg-gray-800 rounded border border-gray-700">
@@ -550,12 +530,5 @@ const DataMapping = ({ data, updateData }) => {
     </div>
   );
 };
-
-// Mock implementation for component references that might be in use elsewhere
-const targetFields = [];
-const filteredTargetFields = [];
-const filteredSourceFields = [];
-const mappings = {};
-const handleMappingChange = () => {};
 
 export default DataMapping;
