@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { AlertTriangle, CheckCircle, HelpCircle, ArrowRight, Sparkles, Database, Key, FileText, ThumbsUp, ThumbsDown, Tag, Layers, Check, X } from 'lucide-react';
+import { AlertTriangle, CheckCircle, ArrowRight, Sparkles, Database, Key, Tag, Layers, Check, X } from 'lucide-react';
 
 // Data categories for bucketing
 const DATA_CATEGORIES = [
@@ -21,15 +21,34 @@ const DataMapping = ({ data, updateData }) => {
   const [mappedFields, setMappedFields] = useState(data.dataMapping || {});
   const [aiSuggestions, setAiSuggestions] = useState({});
   const [isProcessingAI, setIsProcessingAI] = useState(false);
+  const [mappingProgress, setMappingProgress] = useState({
+    total: 0,
+    mapped: 0,
+    percentage: 0
+  });
+  const [mappingStep, setMappingStep] = useState('initial'); // 'initial', 'critical', 'required', 'optional'
   
   // Refs for drag and drop functionality
   const dragSourceRef = useRef(null);
-  const dragTargetRef = useRef(null);
   
   // Update parent component when mappings change
   useEffect(() => {
     updateData({ dataMapping: mappedFields });
   }, [mappedFields, updateData]);
+
+  // Calculate mapping progress
+  useEffect(() => {
+    if (sourceFields.length > 0) {
+      const mappedCount = Object.keys(mappedFields).length;
+      const percentage = Math.round((mappedCount / sourceFields.length) * 100);
+      
+      setMappingProgress({
+        total: sourceFields.length,
+        mapped: mappedCount,
+        percentage
+      });
+    }
+  }, [mappedFields, sourceFields]);
   
   // Load source fields from the selected data source
   useEffect(() => {
@@ -152,7 +171,7 @@ const DataMapping = ({ data, updateData }) => {
     if (fieldIds.length > 1) {
       const dragImage = document.createElement('div');
       dragImage.textContent = `${fieldIds.length} fields`;
-      dragImage.style.backgroundColor = '#2563eb';
+      dragImage.style.backgroundColor = '#3737F2'; // Primary blue
       dragImage.style.color = 'white';
       dragImage.style.padding = '4px 8px';
       dragImage.style.borderRadius = '4px';
@@ -266,14 +285,14 @@ const DataMapping = ({ data, updateData }) => {
     return (
       <div 
         key={category.id}
-        className={`p-4 bg-greyscale-4 rounded-lg mb-3 border-2 border-dashed border-greyscale-6 hover:border-${category.color}-600 transition-colors`}
+        className={`p-4 bg-gray-800 rounded-lg mb-3 border-2 border-dashed border-gray-700 hover:border-${category.color}-600 transition-colors`}
         onDragOver={(e) => e.preventDefault()}
         onDrop={() => handleDrop(category.id)}
       >
         <div className="flex items-center mb-2">
           <CategoryIcon size={16} className={`text-${category.color}-500 mr-2`} />
           <h4 className="font-medium text-white">{category.name}</h4>
-          <span className="ml-auto text-xs text-greyscale-7 bg-greyscale-5 px-2 py-1 rounded-full">
+          <span className="ml-auto text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded-full">
             {mappedCategoryFields.length} fields
           </span>
         </div>
@@ -282,12 +301,12 @@ const DataMapping = ({ data, updateData }) => {
           {mappedCategoryFields.map(field => (
             <div 
               key={field.id} 
-              className="flex items-center p-2 bg-greyscale-5 rounded text-sm text-white"
+              className="flex items-center p-2 bg-gray-700 rounded text-sm text-white"
             >
               <span className="truncate">{field.name}</span>
               <button
                 type="button"
-                className="ml-auto text-greyscale-7 hover:text-vermilion-7 transition-colors"
+                className="ml-auto text-gray-400 hover:text-red-500 transition-colors"
                 onClick={() => handleRemoveMapping(field.id)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -296,13 +315,13 @@ const DataMapping = ({ data, updateData }) => {
                 }}
                 aria-label={`Remove ${field.name} from ${category.name}`}
               >
-                <X size={14} />
+                <X size={14} aria-hidden="true" />
               </button>
             </div>
           ))}
           
           {mappedCategoryFields.length === 0 && (
-            <div className="text-center py-4 text-sm text-greyscale-7">
+            <div className="text-center py-4 text-sm text-gray-500">
               <p>Drag fields here</p>
             </div>
           )}
@@ -310,27 +329,60 @@ const DataMapping = ({ data, updateData }) => {
       </div>
     );
   };
+
+  // Define mapping status based on mapping progress
+  const mappingStatus = {
+    isCriticalComplete: true, // This would be calculated based on actual mappings
+    isComplete: mappingProgress.percentage >= 100,
+    criticalMapped: 2, // Example values - would be calculated in real implementation
+    criticalTotal: 2,
+    requiredMapped: mappingProgress.mapped,
+    requiredTotal: mappingProgress.total
+  };
+  
+  // Calculate overall progress percentage
+  const progressPercentage = mappingProgress.percentage;
   
   return (
     <div className="data-mapping-container">
       <div className="mb-6">
-        <h3 className="text-lg font-medium text-blue-09 mb-2">Map Your Data Fields</h3>
-        <p className="text-greyscale-8">
+        <h3 className="text-lg font-medium text-blue-500 mb-2">Map Your Data Fields</h3>
+        <p className="text-gray-300 mb-4">
           Drag and drop fields from your data source into the appropriate categories.
           You can also use the AI suggestions to automatically categorize your fields.
         </p>
+
+        {/* Progress bar */}
+        <div className="mt-2 mb-6">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-gray-300">Mapping Progress</span>
+            <span className="text-sm text-gray-300">
+              {mappingProgress.mapped} of {mappingProgress.total} fields mapped ({progressPercentage}%)
+            </span>
+          </div>
+          <div className="h-2 w-full bg-gray-700 rounded">
+            <div 
+              className={`h-full rounded ${
+                progressPercentage >= 100 ? 'bg-green-500' : 
+                progressPercentage >= 70 ? 'bg-blue-500' : 
+                progressPercentage >= 30 ? 'bg-yellow-500' : 'bg-red-500'
+              }`} 
+              style={{width: `${progressPercentage}%`}}
+            />
+          </div>
+        </div>
       </div>
       
       {isLoading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-5 mx-auto mb-4"></div>
-          <p className="text-greyscale-8">Loading your data fields...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4" />
+          <p className="text-gray-300">Loading your data fields...</p>
         </div>
       ) : sourceFields.length === 0 ? (
-        <div className="text-center py-12 bg-greyscale-3 rounded-lg">
-          <Database size={48} className="text-greyscale-7 mx-auto mb-4" />
+        <div className="text-center py-12 bg-gray-800 rounded-lg">
+          <Database size={48} className="text-gray-400 mx-auto mb-4" />
           <h4 className="text-white font-medium mb-2">No Fields Available</h4>
-          <p className="text-greyscale-8 mb-4">
+          <p className="text-gray-400 mb-4">
             We couldn't find any fields in the selected data sources. Please check your data sources and try again.
           </p>
         </div>
@@ -344,7 +396,7 @@ const DataMapping = ({ data, updateData }) => {
               {/* AI Suggestion Action Button */}
               <button
                 type="button"
-                className="flex items-center px-3 py-1.5 bg-blue-7 rounded-md text-white text-sm hover:bg-blue-6 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center px-3 py-1.5 bg-blue-600 rounded-md text-white text-sm hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleAcceptAllSuggestions}
                 disabled={isProcessingAI || Object.keys(aiSuggestions).length === 0}
                 aria-label="Accept all AI suggestions"
@@ -360,10 +412,10 @@ const DataMapping = ({ data, updateData }) => {
             </div>
             
             {/* Data fields table */}
-            <div className="bg-greyscale-3 rounded-lg overflow-hidden">
+            <div className="bg-gray-800 rounded-lg overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-greyscale-4 text-greyscale-7">
+                  <tr className="bg-gray-700 text-gray-400">
                     <th className="px-4 py-2 text-left font-medium">ID</th>
                     <th className="px-4 py-2 text-left font-medium">Name</th>
                     <th className="px-4 py-2 text-left font-medium">Example</th>
@@ -380,15 +432,22 @@ const DataMapping = ({ data, updateData }) => {
                     return (
                       <tr
                         key={field.id}
-                        className={`border-t border-greyscale-5 ${isSelected ? 'bg-blue-900 bg-opacity-30' : ''} ${field.mapped ? 'opacity-60' : ''}`}
+                        className={`border-t border-gray-700 ${isSelected ? 'bg-blue-900 bg-opacity-30' : ''} ${field.mapped ? 'opacity-60' : ''} hover:bg-gray-700 cursor-pointer`}
                         onClick={(e) => handleRowSelect(field.id, e)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleRowSelect(field.id, e);
+                          }
+                        }}
+                        tabIndex="0"
                         draggable
                         onDragStart={(e) => handleDragStart(e, selectedRows.includes(field.id) ? selectedRows : [field.id])}
                         data-field-id={field.id}
                       >
                         <td className="px-4 py-2 text-white">{field.id}</td>
                         <td className="px-4 py-2 text-white">{field.name}</td>
-                        <td className="px-4 py-2 text-greyscale-7">{field.example}</td>
+                        <td className="px-4 py-2 text-gray-400">{field.example}</td>
                         <td className="px-4 py-2">
                           {field.mapped ? (
                             <span className={`px-2 py-1 rounded-full text-xs text-${categoryObj?.color || 'gray'}-500 bg-${categoryObj?.color || 'gray'}-500 bg-opacity-20`}>
@@ -396,7 +455,7 @@ const DataMapping = ({ data, updateData }) => {
                             </span>
                           ) : suggestedCategory ? (
                             <div className="flex items-center">
-                              <span className="text-greyscale-7 mr-2">AI: {DATA_CATEGORIES.find(cat => cat.id === suggestedCategory)?.name}</span>
+                              <span className="text-gray-400 mr-2">AI: {DATA_CATEGORIES.find(cat => cat.id === suggestedCategory)?.name}</span>
                               <button
                                 type="button"
                                 className="p-1 rounded-full bg-green-600 bg-opacity-20 text-green-500 hover:bg-opacity-30 transition-colors"
@@ -410,13 +469,14 @@ const DataMapping = ({ data, updateData }) => {
                                     handleAcceptSuggestion(field.id);
                                   }
                                 }}
+                                tabIndex="0"
                                 aria-label={`Accept suggestion for ${field.name}`}
                               >
-                                <Check size={12} />
+                                <Check size={12} aria-hidden="true" />
                               </button>
                             </div>
                           ) : (
-                            <span className="text-greyscale-7">Drag to assign</span>
+                            <span className="text-gray-500">Drag to assign</span>
                           )}
                         </td>
                       </tr>
@@ -428,7 +488,7 @@ const DataMapping = ({ data, updateData }) => {
             
             {/* Selection info */}
             {selectedRows.length > 0 && (
-              <div className="mt-2 text-xs text-greyscale-7">
+              <div className="mt-2 text-xs text-gray-400">
                 {selectedRows.length} fields selected. Drag to assign to a category.
               </div>
             )}
@@ -443,474 +503,59 @@ const DataMapping = ({ data, updateData }) => {
           </div>
         </div>
       )}
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-medium text-white">Mapping Progress</h4>
-              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                mappingStep === 'critical' 
-                  ? (!mappingStatus.isCriticalComplete ? 'bg-vermilion-7 bg-opacity-20 text-vermilion-7' : 'bg-green-6 bg-opacity-20 text-green-6')
-                  : mappingStatus.isComplete ? 'bg-green-6 bg-opacity-20 text-green-6' : 'bg-amber-500 bg-opacity-20 text-amber-500'
-              }`}>
-                {mappingStep === 'critical' 
-                  ? (mappingStatus.isCriticalComplete ? 'Critical Fields Mapped' : 'Critical Fields Needed') 
-                  : (mappingStatus.isComplete ? 'Complete' : 'In Progress')}
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-sm text-greyscale-7">Critical Fields (ID & Name)</div>
-                <div className="text-lg font-medium text-white">
-                  {mappingStatus.criticalMapped} / {mappingStatus.criticalTotal}
-                  <span className="text-sm text-greyscale-7 ml-2">
-                    ({Math.round((mappingStatus.criticalMapped / mappingStatus.criticalTotal) * 100)}%)
-                  </span>
-                </div>
-              </div>
-              
-              <div>
-                <div className="text-sm text-greyscale-7">Required Fields</div>
-                <div className="text-lg font-medium text-white">
-                  {mappingStatus.requiredMapped} / {mappingStatus.requiredTotal}
-                  <span className="text-sm text-greyscale-7 ml-2">
-                    ({Math.round((mappingStatus.requiredMapped / mappingStatus.requiredTotal) * 100)}%)
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Progress bar */}
-            <div className="mt-3 relative h-2 bg-greyscale-6 rounded-full overflow-hidden">
-              <div 
-                className={`absolute top-0 left-0 h-full ${
-                  mappingStep === 'critical' 
-                    ? (!mappingStatus.isCriticalComplete ? 'bg-vermilion-7' : 'bg-green-6')
-                    : mappingStatus.isComplete ? 'bg-green-6' : 'bg-amber-500'
-                }`}
-                style={{ width: mappingStep === 'critical' 
-                  ? `${(mappingStatus.criticalMapped / mappingStatus.criticalTotal) * 100}%`
-                  : `${(mappingStatus.requiredMapped / mappingStatus.requiredTotal) * 100}%` 
-                }}
-              />
-            </div>
+      {/* Mapping Progress - Simple Version */}
+      <div className="mt-6">
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="font-medium text-white">Mapping Progress</h4>
+          <div className="text-sm text-gray-300">
+            {mappingProgress.mapped} of {mappingProgress.total} fields mapped
           </div>
         </div>
-      )}
-      
-      {/* AI Suggestions Section - Only show in critical step */}
-      {mappingStep === 'critical' && aiSuggestions && (
-        <div className="mb-6 p-4 bg-blue-7 bg-opacity-10 rounded-lg border border-blue-7 border-opacity-20">
-          <div className="flex items-center mb-3">
-            <Sparkles size={18} className="text-blue-5 mr-2" />
-            <h4 className="font-medium text-blue-09">AI-Suggested Field Mappings</h4>
-          </div>
-          
-          <p className="text-greyscale-8 mb-4 text-sm">
-            Our AI has analyzed your data structure and suggested the following mappings for critical fields:
-          </p>
-          
-          {/* ID Field Suggestion */}
-          {aiSuggestions.idField && (
-            <div className="mb-4 p-3 bg-greyscale-4 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center">
-                  <Key size={16} className="text-blue-5 mr-2" />
-                  <span className="font-medium text-white">Unique ID Field</span>
-                </div>
-                <div className="px-2 py-1 rounded-full text-xs text-blue-5">
-                  {aiSuggestions.idConfidence}% confidence
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between p-2 bg-greyscale-5 rounded mb-3">
-                <div>
-                  <span className="text-white font-medium">{aiSuggestions.idField.name}</span>
-                  <span className="text-xs text-greyscale-7 ml-2">from {aiSuggestions.idField.source}</span>
-                </div>
-                <div className="flex items-center">
-                  <button 
-                    type="button"
-                    className="p-1 bg-green-6 bg-opacity-20 text-green-6 rounded hover:bg-opacity-30 transition-colors"
-                    onClick={() => handleAcceptSuggestion(aiSuggestions.idField.id, 'account_id')}
-                  >
-                    <ThumbsUp size={14} />
-                  </button>
-                  <button 
-                    type="button"
-                    className="p-1 bg-vermilion-7 bg-opacity-20 text-vermilion-7 rounded hover:bg-opacity-30 transition-colors"
-                    onClick={() => handleRejectSuggestion('id')}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        handleRejectSuggestion('id');
-                      }
-                    }}
-                  >
-                    <ThumbsDown size={14} />
-                  </button>
-                </div>
-              </div>
-              
-              <div className="text-xs text-greyscale-7">
-                <span className="font-medium">Sample values:</span> {aiSuggestions.idField.sampleValues.join(', ')}
-              </div>
-            </div>
-          )}
-          
-          {/* Name Field Suggestion */}
-          {aiSuggestions.nameField && (
-            <div className="p-3 bg-greyscale-4 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center">
-                  <FileText size={16} className="text-blue-5 mr-2" />
-                  <span className="font-medium text-white">Account Name Field</span>
-                </div>
-                <div className="px-2 py-1 bg-blue-5 bg-opacity-20 rounded-full text-xs text-blue-5">
-                  {aiSuggestions.nameConfidence}% confidence
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between p-2 bg-greyscale-5 rounded mb-3">
-                <div>
-                  <span className="text-white font-medium">{aiSuggestions.nameField.name}</span>
-                  <span className="text-xs text-greyscale-7 ml-2">from {aiSuggestions.nameField.source}</span>
-                </div>
-                <div className="flex items-center">
-                  <button 
-                    type="button"
-                    className="p-1 bg-green-6 bg-opacity-20 text-green-6 rounded hover:bg-opacity-30 transition-colors"
-                    onClick={() => handleAcceptSuggestion(aiSuggestions.nameField.id, 'account_name')}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        handleAcceptSuggestion(aiSuggestions.nameField.id, 'account_name');
-                      }
-                    }}
-                  >
-                    <ThumbsUp size={14} />
-                  </button>
-                  <button 
-                    type="button"
-                    className="p-1 bg-vermilion-7 bg-opacity-20 text-vermilion-7 rounded hover:bg-opacity-30 transition-colors"
-                    onClick={() => handleRejectSuggestion('name')}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        handleRejectSuggestion('name');
-                      }
-                    }}
-                  >
-                    <ThumbsDown size={14} />
-                  </button>
-                </div>
-              </div>
-              
-              <div className="text-xs text-greyscale-7">
-                <span className="font-medium">Sample values:</span> {aiSuggestions.nameField.sampleValues.join(', ')}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-      
-      {/* Category Tabs - Only show after critical fields are mapped */}
-      {(mappingStep !== 'critical' || mappingStatus.isCriticalComplete) && (
-        <div className="mb-4 border-b border-greyscale-6">
-          <div className="flex space-x-4 overflow-x-auto">
-            {categories.map(category => (
-              <button
-                key={category}
-                type="button"
-                className={`py-2 px-4 border-b-2 whitespace-nowrap ${
-                  activeCategory === category 
-                    ? 'border-vermilion-7 text-vermilion-7' 
-                    : 'border-transparent text-greyscale-7 hover:text-white'
-                }`}
-                onClick={() => setActiveCategory(category)}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {/* Data Preview Table - Only show after critical fields are mapped */}
-      {!isLoading && showDataPreview && sampleData.length > 0 && (
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="font-medium text-white">Data Preview</h4>
-            <button 
-              type="button"
-              className="text-xs text-blue-5 hover:text-blue-4 transition-colors"
-              onClick={() => setShowDataPreview(!showDataPreview)}
-            >
-              {showDataPreview ? 'Hide Preview' : 'Show Preview'}
-            </button>
-          </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  {/* Find the ID and Name fields that are mapped */}
-                  {Object.entries(mappings).map(([sourceId, targetId]) => {
-                    if (targetId === 'account_id' || targetId === 'account_name') {
-                      const sourceField = sourceFields.find(f => f.id === sourceId);
-                      return (
-                        <th 
-                          key={sourceId} 
-                          className="p-2 bg-greyscale-5 text-left text-xs font-medium text-greyscale-8 border-b border-greyscale-6"
-                        >
-                          {sourceField?.name || 'Unknown Field'}
-                        </th>
-                      );
-                    }
-                    return null;
-                  }).filter(Boolean)}
-                </tr>
-              </thead>
-              <tbody>
-                {sampleData.map((row, index) => {
-                  // Create a unique key from the row data or fall back to index
-                  const rowKey = Object.values(row).join('-') || `row-${index}`;
-                  return (
-                  <tr key={rowKey} className={index % 2 === 0 ? 'bg-greyscale-4' : 'bg-greyscale-3'}>
-                    {Object.entries(mappings).map(([sourceId, targetId]) => {
-                      if (targetId === 'account_id' || targetId === 'account_name') {
-                        return (
-                          <td 
-                            key={sourceId} 
-                            className="p-2 text-sm text-white border-b border-greyscale-6"
-                          >
-                            {row[sourceId] || '-'}
-                          </td>
-                        );
-                      }
-                      return null;
-                    }).filter(Boolean)}
-                  </tr>
-                )})}
-              </tbody>
-            </table>
-          </div>
-          
-          <div className="mt-2 text-xs text-greyscale-7 text-right">
-            Showing {sampleData.length} sample records
-          </div>
-        </div>
-      )}
-      
-      {/* Mapping Interface */}
-      <div className="space-y-4">
-        {filteredTargetFields.map(targetField => {
-          // Skip this field if we're in critical step and it's not a critical field
-          if (mappingStep === 'critical' && !targetField.critical) {
-            return null;
-          }
-          
-          // Skip this field if we're in required step and it's not required or it's critical
-          if (mappingStep === 'required' && (!targetField.required || targetField.critical)) {
-            return null;
-          }
-          
-          // Skip this field if we're in optional step and it's required
-          if (mappingStep === 'optional' && targetField.required) {
-            return null;
-          }
-          
-          // Find source fields that map to this target field
-          const mappedSourceFieldIds = Object.entries(mappings)
-            .filter(([_, targetId]) => targetId === targetField.id)
-            .map(([sourceId]) => sourceId);
-          
-          const mappedSourceFields = sourceFields.filter(field => 
-            mappedSourceFieldIds.includes(field.id)
-          );
-          
-          return (
-            <div key={targetField.id} className="p-4 bg-greyscale-4 rounded-lg">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <div className="flex items-center">
-                    <h4 className="font-medium text-white">{targetField.name}</h4>
-                    <span className="ml-2 px-2 py-0.5 bg-greyscale-6 rounded-full text-xs text-greyscale-8">
-                      {targetField.category}
-                    </span>
-                    {targetField.required && (
-                      <span className="ml-2 px-2 py-0.5 bg-vermilion-7 bg-opacity-20 rounded-full text-xs text-vermilion-7">
-                        Required
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      className="ml-2 text-greyscale-7 hover:text-white"
-                      title={targetField.description}
-                      aria-label={`Help for ${targetField.name}: ${targetField.description}`}
-                    >
-                      <HelpCircle size={14} />
-                    </button>
-                  </div>
-                  <p className="text-sm text-greyscale-7 mt-1">{targetField.description}</p>
-                </div>
-                
-                <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  mappedSourceFields.length > 0 
-                    ? 'bg-green-6 bg-opacity-20 text-green-6' 
-                    : targetField.required ? 'bg-vermilion-7 bg-opacity-20 text-vermilion-7' : 'bg-greyscale-6 text-greyscale-8'
-                }`}>
-                  {mappedSourceFields.length > 0 ? 'Mapped' : 'Unmapped'}
-                </div>
-              </div>
-              
-              {/* Mapped Source Fields */}
-              {mappedSourceFields.length > 0 && (
-                <div className="mb-3 space-y-2">
-                  {mappedSourceFields.map(sourceField => (
-                    <div key={sourceField.id} className="flex items-center justify-between p-2 bg-greyscale-5 rounded">
-                      <div className="flex items-center">
-                        <CheckCircle size={14} className="text-green-6 mr-2" />
-                        <span className="text-white">{sourceField.name}</span>
-                        <span className="ml-2 text-xs text-greyscale-7">from {sourceField.source}</span>
-                      </div>
-                      
-                      <div className="flex items-center">
-                        <div className="mr-3 text-xs text-greyscale-7">
-                          <span className="font-medium">Type:</span> {sourceField.dataType}
-                        </div>
-                        <button
-                          type="button"
-                          className="text-vermilion-7 hover:text-vermilion-6 text-sm"
-                          onClick={() => handleMappingChange(sourceField.id, null)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              handleMappingChange(sourceField.id, null);
-                            }
-                          }}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              {/* Sample Values for Mapped Fields */}
-              {mappedSourceFields.length > 0 && (
-                <div className="mb-3 p-2 bg-greyscale-5 rounded text-xs text-greyscale-7">
-                  <span className="font-medium">Sample values:</span>{' '}
-                  {mappedSourceFields.map(field => field.sampleValues.join(', ')).join(' | ')}
-                </div>
-              )}
-              
-              {/* Add Mapping Dropdown */}
-              <div className="mt-3">
-                <select
-                  className="w-full p-2 bg-greyscale-3 border border-greyscale-6 rounded text-white"
-                  value=""
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      handleMappingChange(e.target.value, targetField.id);
-                      e.target.value = "";
-                    }
-                  }}
-                >
-                  <option value="">+ Add field mapping</option>
-                  {filteredSourceFields
-                    .filter(field => !(field.id in mappings && mappings[field.id]))
-                    .map(field => (
-                      <option key={field.id} value={field.id}>
-                        {field.name} ({field.source}) - {field.dataType}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            </div>
-          );
-        }).filter(Boolean)}
-      </div>
-      
-      {/* Navigation Buttons */}
-      <div className="mt-6 flex justify-between">
-        {mappingStep !== 'critical' && (
-          <button
-            type="button"
-            className="px-4 py-2 border border-greyscale-6 rounded-md text-white hover:bg-greyscale-6 transition-colors"
-            onClick={() => setMappingStep(mappingStep === 'optional' ? 'required' : 'critical')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                setMappingStep(mappingStep === 'optional' ? 'required' : 'critical');
-              }
-            }}
-          >
-            Back
-          </button>
-        )}
         
-        <div className="ml-auto">
-          {mappingStep === 'critical' && mappingStatus.isCriticalComplete && (
-            <button
-              type="button"
-              className="px-4 py-2 bg-blue-7 rounded-md text-white hover:bg-blue-6 transition-colors"
-              onClick={() => setMappingStep('required')}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  setMappingStep('required');
-                }
-              }}
-            >
-              Continue to Required Fields
-            </button>
-          )}
-          
-          {mappingStep === 'required' && mappingStatus.isComplete && (
-            <button
-              type="button"
-              className="px-4 py-2 bg-blue-7 rounded-md text-white hover:bg-blue-6 transition-colors"
-              onClick={() => setMappingStep('optional')}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  setMappingStep('optional');
-                }
-              }}
-            >
-              Continue to Optional Fields
-            </button>
-          )}
+        {/* Progress bar */}
+        <div className="h-2 w-full bg-gray-700 rounded">
+          <div 
+            className={`h-full rounded ${
+              progressPercentage >= 100 ? 'bg-green-500' : 
+              progressPercentage >= 70 ? 'bg-blue-500' : 
+              progressPercentage >= 30 ? 'bg-yellow-500' : 'bg-red-500'
+            }`} 
+            style={{width: `${progressPercentage}%`}}
+          />
         </div>
       </div>
-      
-      {/* Unmapped Required Fields Warning */}
-      {((mappingStep === 'critical' && !mappingStatus.isCriticalComplete) || 
-         (mappingStep === 'required' && !mappingStatus.isComplete)) && (
-        <div className="mt-6 p-3 bg-vermilion-7 bg-opacity-20 text-vermilion-7 rounded-md flex items-start">
-          <AlertTriangle size={18} className="mr-2 mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="font-medium">
-              {mappingStep === 'critical' ? 'Critical fields not mapped' : 'Required fields not mapped'}
-            </p>
-            <p className="text-sm mt-1">
-              {mappingStep === 'critical' 
-                ? `${mappingStatus.criticalTotal - mappingStatus.criticalMapped} critical fields need to be mapped before proceeding.`
-                : `${mappingStatus.requiredTotal - mappingStatus.requiredMapped} required fields need to be mapped before proceeding.`
-              }
-            </p>
-            <ul className="mt-2 text-sm list-disc list-inside">
-              {targetFields
-                .filter(field => 
-                  (mappingStep === 'critical' && field.critical) || 
-                  (mappingStep === 'required' && field.required && !field.critical)
-                )
-                .filter(field => {
-                  const isMapped = Object.values(mappings).includes(field.id);
-                  return !isMapped;
-                })
-                .map(field => (
-                  <li key={field.id}>{field.name}</li>
-                ))}
-            </ul>
-          </div>
-        </div>
-      )}
+
+      {/* Tips section */}
+      <div className="mt-8 p-4 bg-gray-800 rounded border border-gray-700">
+        <h4 className="font-medium text-white mb-2">Tips for Data Mapping</h4>
+        <ul className="space-y-2 text-sm text-gray-300">
+          <li className="flex items-start">
+            <span className="mr-2 text-blue-500">•</span>
+            <span>Drag and drop fields from the table to the category buckets on the right</span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2 text-blue-500">•</span>
+            <span>Use Ctrl/Cmd + click to select multiple fields for bulk mapping</span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2 text-blue-500">•</span>
+            <span>Shift + click to select a range of fields</span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2 text-blue-500">•</span>
+            <span>The "Accept All AI Suggestions" button will map all fields based on AI recommendations</span>
+          </li>
+        </ul>
+      </div>
     </div>
   );
 };
+
+// Mock implementation for component references that might be in use elsewhere
+const targetFields = [];
+const filteredTargetFields = [];
+const filteredSourceFields = [];
+const mappings = {};
+const handleMappingChange = () => {};
 
 export default DataMapping;

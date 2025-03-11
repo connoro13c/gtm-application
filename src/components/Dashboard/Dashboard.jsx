@@ -52,13 +52,13 @@ const MetricCard = ({ title, value, trend, percentage, alert }) => {
     <div className="card">
       <div className="flex justify-between items-start">
         <h3 className="text-h3 text-violet-08">{title}</h3>
-        {alert && <AlertTriangle className="text-vermilion-7" size={20} />}
+        {alert && <AlertTriangle className="text-vermilion-7" size={20} aria-hidden="true" />}
       </div>
       <div className="mt-2 flex items-end">
         <span className="text-2xl font-bold">{value}</span>
         {trend && (
           <div className={`ml-2 flex items-center ${trend === 'up' ? 'text-green-6' : 'text-vermilion-7'}`}>
-            {trend === 'up' ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+            {trend === 'up' ? <TrendingUp size={16} aria-hidden="true" /> : <TrendingDown size={16} aria-hidden="true" />}
             <span className="text-sm ml-1">{percentage}%</span>
           </div>
         )}
@@ -115,7 +115,7 @@ const QuickActionCard = ({ title, description, icon: Icon, primary = false, onCl
     >
       <div className="flex items-start">
         <div className={`${primary ? 'bg-vermilion-7' : 'bg-blue-5 bg-opacity-10'} p-2 rounded-full mr-3`}>
-          <Icon className={`${primary ? 'text-white' : 'text-blue-5'}`} size={20} />
+          <Icon className={`${primary ? 'text-white' : 'text-blue-5'}`} size={20} aria-hidden="true" />
         </div>
         <div>
           <h4 className="font-medium text-blue-08">{title}</h4>
@@ -125,7 +125,7 @@ const QuickActionCard = ({ title, description, icon: Icon, primary = false, onCl
       <div className="mt-3 flex justify-end">
         <button type="button" className="text-blue-6 text-sm flex items-center hover:underline">
           <span>View</span>
-          <ArrowRight size={14} className="ml-1" />
+          <ArrowRight size={14} className="ml-1" aria-hidden="true" />
         </button>
       </div>
     </button>
@@ -315,7 +315,7 @@ const Dashboard = () => {
                 onClick={handleWizardClose} 
                 className="text-greyscale-7 hover:text-white"
               >
-                <X size={24} />
+                <X size={24} aria-hidden="true" />
               </button>
             </div>
             <ScoringRunWizard 
@@ -383,7 +383,9 @@ const Dashboard = () => {
                   isPositive={true} 
                 />
               ))}
-            </div>     </div>        <div>
+            </div>
+          </div>
+          <div>
             <h3 className="text-h3 mb-3 text-vermilion-08">Negative Drivers</h3>
             <div className="space-y-3">
               {data.negativeDrivers.map((driver) => (
@@ -394,7 +396,9 @@ const Dashboard = () => {
                   isPositive={false} 
                 />
               ))}
-            </div>     </div>      </div>
+            </div>
+          </div>
+        </div>
         
         {/* Section 4: Quick Access & Actions */}
         <div>
@@ -410,7 +414,8 @@ const Dashboard = () => {
                 onClick={() => handleActionClick(action.title)}
               />
             ))}
-          </div>      </div>
+          </div>
+        </div>
         
         {/* Section 5: Recent Scoring Runs */}
         <div className="mt-6">
@@ -418,7 +423,7 @@ const Dashboard = () => {
             <h3 className="text-h3 text-blue-09">Recent Scoring Runs</h3>
             <button type="button" className="text-blue-6 text-sm flex items-center hover:underline">
               <span>View All</span>
-              <ArrowRight size={14} className="ml-1" />
+              <ArrowRight size={14} className="ml-1" aria-hidden="true" />
             </button>
           </div>
           <div className="overflow-x-auto pb-2">
@@ -442,7 +447,7 @@ const Dashboard = () => {
                   <div className="mt-3 flex justify-end">
                     <button type="button" className="text-blue-6 text-sm flex items-center hover:underline">
                       <span>View Details</span>
-                      <ArrowRight size={14} className="ml-1" />
+                      <ArrowRight size={14} className="ml-1" aria-hidden="true" />
                     </button>
                   </div>
                 </div>
@@ -454,7 +459,7 @@ const Dashboard = () => {
                 onClick={() => setShowNewRunModal(true)}
                 aria-label="Start New Scoring Run"
               >
-                <PlusCircle size={32} className="text-blue-5 mb-2" />
+                <PlusCircle size={32} className="text-blue-5 mb-2" aria-hidden="true" />
                 <p className="text-blue-7 font-medium">Start New Scoring Run</p>
               </button>
             </div>
