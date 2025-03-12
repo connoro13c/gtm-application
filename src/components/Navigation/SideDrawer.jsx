@@ -214,6 +214,7 @@ const SideDrawer = ({ onDrawerStateChange }) => {
             path="/data" 
             itemKey="data"
             subItems={[
+              { title: 'Data Loading', path: '/data-loading' },
               { title: 'Data Import', path: '/data/import' },
               { title: 'Data Export', path: '/data/export' },
               { title: 'Data Hygiene', path: '/data/hygiene' }
