@@ -1,114 +1,178 @@
-# Product Requirements Document (PRD): Data Loading, Mapping, Tagging, Transforming, and Merging Workflow
+# Product Requirements Document (PRD)
 
-## 🎯 Objective
+## 🚀 Advanced Account Scoring & Segmentation Application
 
-Create a highly intuitive, interactive, and efficient workflow for loading, mapping, tagging, transforming, and merging diverse data sources. This system should empower RevOps teams to prepare data explicitly for advanced ML-driven account scoring and segmentation, without extensive technical overhead or dependency on external data teams.
+### 1. Introduction
 
-## 📌 Core Functionalities
+**Purpose**: Generate a robust "propensity-to-buy" account score (0-100) to guide sales team prioritization, inform territory creation, and assist in quota setting and alignment. Additionally, leverage the scoring insights to optimize account segmentation, maximizing propensity scores through strategic segmentation adjustments.
 
-### 1. Data Loading
+**Goals**:
 
-**Sources Supported:** Salesforce, HubSpot, 6sense, Clay, Marketo, Gainsight, Totango, Vitaly, Amplitude, Mixpanel, Heap, Segment, CSV, Excel, Google Sheets, Custom APIs.
+- Improve sales targeting accuracy and pipeline quality.
+- Enable effective territory creation and balance.
+- Facilitate accurate quota setting and alignment.
+- Provide transparency into scoring factors for greater team alignment.
+- Drive strategic resource allocation decisions based on clear data.
+- Optimize account segmentation to maximize overall propensity to buy.
 
-**Methods:**
-- Manual file uploads (CSV, Excel, JSON)
-- Direct API integration (OAuth, API keys)
-- Automated scheduled pulls (SFDC, HubSpot Reports)
+### 📌 Functional Requirements
 
-**Features:**
-- Real-time validation upon data load
-- Immediate feedback highlighting data errors or mismatches
+#### 1. Data Ingestion & Preparation
 
-### 2. Data Mapping & Matching
+- Weekly automated data import from Salesforce CRM, Google Sheets, and/or CSVs.
+- Data validation checks (flagging issues without blocking scoring runs).
+- AI-driven data augmentation (suggest missing firmographics and tech-stack info).
 
-**Unique Identifier:** Primarily Salesforce Account ID, with fallback options:
-- Domain matching
-- Account name fuzzy matching
-- Manual overrides
-- Custom unique key creation via concatenation and lightweight modeling
+#### 2. Advanced Account Scoring Engine
 
-**User Experience:**
-- Highly interactive drag-and-drop interface
-- AI-driven auto-suggestions for field mappings based on data type and sample data
+- Weekly automatic scoring updates using statistical and ML algorithms (e.g., Random Forest).
+- Ability to run multiple scoring scenarios with different input weightings.
+- Scenario storage (max 10) and comparison (up to 3 simultaneously).
+- Interactive interface to adjust weightings and immediately visualize scoring impacts.
 
-### 3. Data Tagging & Categorization
+#### 3. Scenario Management and Persistence
 
-**Mandatory Unique ID Mapping:** Explicit step ensuring data alignment
+- Clear workflows for saving, editing, publishing, archiving, and deleting scenarios.
+- Scenarios stored as drafts until explicitly published.
+- Robust versioning control and historical scenario tracking.
+- Simple interface for managing scenario statuses (active, draft, archived).
 
-**Predefined Categories:**
-- Firmographic
-- Sales Engagement
-- Marketing Engagement
-- Customer Health
-- Product Usage
-- Other
+#### 4. Data Sources & Mapping Management
 
-**Dynamic Suggestions:** Application-driven category suggestions during data load and mapping
+- Interface to manage persistent data sources (Salesforce, Google Sheets, CSV uploads).
+- Interactive mapping and alignment tools for integrating additional datasets.
+- Status indicators and error management for data connections.
 
-### 4. Data Transformation
+#### 5. Account Segmentation Optimization
 
-**Transformations Supported:**
-- Date/time formatting
-- Numeric transformations (aggregation, normalization)
-- Text cleaning (normalization, fuzzy matching, deduplication)
-- Field calculations (revenue per user, ARR/MRR calculations)
-- Mass-change overrides within the app without impacting source data
+- Analyze and recommend segmentation adjustments to maximize propensity-to-buy scores.
+- Identify opportunities for new segment creation, adjustment, or consolidation based on historical performance and predictive insights.
+- Provide clear visibility into the relationship between segment criteria, account distribution, AE workload, and propensity scores.
+- Scenario modeling for testing segmentation adjustments and comparing outcomes.
 
-**Real-Time Preview:** Immediate feedback showing transformation results
+#### 6. User Input Collection & Overrides
 
-### 5. Data Combining & Merging
+- Optional structured qualitative feedback from Sales/CS teams post initial scoring.
+- Clear workflows for submitting, reviewing, accepting/rejecting feedback.
+- Audit trail for overrides and user input.
 
-**Dataset Creation:** Explicit manual combination and merging of data sources into defined datasets
+#### 7. Score Explainability
 
-**Snapshots:** Backend capability for storing each dataset explicitly as snapshots upon updates
+- Detailed breakdown at account-level (firmographic, engagement, historical sales data, user inputs).
+- Aggregated insights at territory, segment, and company levels.
+- AI-generated plain-language explanations for account-level scores.
 
-**Merge Conflict Resolution:**
-- Visual conflict highlighting
-- Interactive resolution workflow
+#### 8. Predictive Accuracy and Insights
 
-**Scheduled Data Pulls:** Support for automated pulls with manual intervention points clearly marked for issue resolution
+- Weekly accuracy tracking (flash reports).
+- Monthly and quarterly accuracy and trend analysis.
+- Explicit actionable sales recommendations based on predictive insights.
 
-### 6. Data Validation & Quality Assurance
+#### 9. Data Hygiene & AI Data Augmentation
 
-**Real-Time Validation:** Integrated into the data-loading workflow explicitly
+- AI-driven data gap identification and augmentation suggestions.
+- Escalation workflows for unresolved data issues.
+- Transparent audit trails of changes and data enrichment decisions.
 
-**AI-Assisted Error Detection:** Immediate elevation and visual indication of critical data issues
+### ⚙️ Non-Functional Requirements
 
-## 🔐 User Roles & Permissions
+- **Performance**: Scoring updates run weekly without significant downtime.
+- **Scalability**: Support tens of thousands of accounts.
+- **Security**: Role-based permissions (read, write, none).
+- **Maintainability**: Easily configurable scenario variables and weightings by Ops.
+- **AI Integration**: AI-powered insights, explanations, and data augmentation.
 
-**Ops/Admins:** Full access to data loading, transformation, mapping, merging, configuration
+### 👤 User Roles & Permissions
 
-**Sales & Customer Success Leaders:** Restricted access explicitly to their respective territories or segments with read/write/no access permissions clearly defined
+#### Sales Ops
 
-## 🚀 Scalability & Performance
+- Full read/write access.
+- Scenario creation, analysis, feedback management, and segmentation adjustments.
 
-- Designed explicitly for handling 10,000–20,000 accounts per scoring run
-- Robust backend infrastructure leveraging Docker and containerization
+#### Sales/CS Leaders
 
-## 📊 Outputs & Integrations
+- Access to own territory data.
+- Provide qualitative feedback and overrides.
 
-- Export capability to CSV for ad-hoc analysis
-- Structured database storage for all datasets and scoring runs
-- Automated API calls to ML scoring models (microservices-based integration)
+#### Account Executives (AEs) & Customer Success Managers (CSMs)
 
-## 🚨 Notifications & Workflow Automation
+- View individual account-level scoring breakdown.
+- Optional input and overrides (if granted access).
 
-- Slack notifications explicitly for critical workflow events (data load errors, scoring completions, etc.)
+#### Leadership
 
-## 🛠 Technology Stack
+- Read-only access to dashboards and reports.
 
-- **Backend:** Node.js, Express, TypeORM/Drizzle ORM, PostgreSQL
-- **Frontend:** React, Zustand, Tailwind CSS, Recharts for initial analytics
-- **Infrastructure:** Docker, Microservices (ML), API-based integration
+### 📐 UX/UI Wireframe & Interaction Definitions
 
-## 📝 User Onboarding & Documentation
+#### Key Screens and Components
 
-- Embedded onboarding (guided tours, tooltips)
-- Built-in documentation/help explicitly within the application
+##### 1. Dashboard
 
-## 🌟 Innovation & UX Principles
+- Navigation bar with global navigation links (Dashboard, Scenario Management, Data Sources, Account Scoring, Predictive Insights, Data Validation, User Feedback).
+- Overview metrics (total accounts, average scores, high-value accounts)
+- Prominent Predictive Success Trendline clearly showing predictive accuracy over scoring runs
+- Data quality metrics: new accounts added, accounts with critical missing data
+- Quick navigation links to Scenario management, Predictive Insights, Account Scoring, and Data Validation.
+- Highlight top 3 positive and negative drivers for account score movements
 
-- Inspired by IBM Cognos TM1 Turbo Integrator (powerful mapping capability)
-- Hyper-modern, clean, intuitive, enjoyable user interface explicitly tailored for RevOps teams
+##### 2. Scenario Management Screen
 
-This PRD explicitly sets the groundwork for developing a robust, user-friendly, innovative data workflow solution tailored for advanced analytics and ML-driven insights.
+- Scenario creation, editing, versioning, and management interface
+- Side-by-side scenario comparison (max 3)
+- Interactive sliders for scenario adjustments
+- AI-generated summaries highlighting scenario differences
+- Scenario status management (active, draft, archived)
+
+##### 3. Data Sources & Mapping Management
+
+- Management of persistent data sources (Salesforce, Google Sheets, CSV)
+- Interactive data mapping and alignment tools
+- Visual indicators for connection status and data integration issues
+
+##### 4. Account-Level Score Page
+
+- Account propensity score display (numeric/visual)
+- Detailed breakdown of scoring factors
+- AI-generated explanatory narratives
+- Historical scoring trends and accuracy indicators
+
+##### 5. Scenario Modeling Interface
+
+- Interactive weighting adjustments and real-time scoring visualizations
+- Scenario saving, naming, and versioning capabilities
+
+##### 6. Account Segmentation Analysis Page
+
+- Interactive tools for adjusting segmentation strategies
+- Visual insights showing segmentation impacts on propensity scores and AE workload
+
+##### 7. Data Sources & Mapping Management Page
+
+- Persistent data connection management (Salesforce, Google Sheets, CSV)
+- Interactive dataset mapping and integration tools
+- Status indicators and troubleshooting for data connections
+
+##### 8. User Input Collection & Overrides Interface
+
+- Structured input forms (confidence sliders, reason codes, comments)
+- Ops review and approval workflows for feedback
+
+##### 9. Data Validation & Augmentation Page
+
+- Data quality/error tracking interface
+- AI-suggested data augmentations
+- Escalation workflows for unresolved data issues
+
+##### 10. Predictive Insights Reporting Page
+
+- Weekly flash reports with explicit insights
+- Monthly and quarterly deep-dive analyses
+- Clearly highlighted actionable sales recommendations
+
+### 📍 Success Metrics
+
+- Improved accuracy of sales forecasts.
+- Increased sales productivity and effectiveness.
+- Positive feedback from sales and ops teams on UX/UI.
+- Improved alignment and effectiveness of account segmentation strategies.
