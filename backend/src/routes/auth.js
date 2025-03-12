@@ -5,11 +5,10 @@
 
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../prisma.js';
 import { authenticateJWT } from '../middleware/auth.js';
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 /**
  * @route POST /api/auth/login

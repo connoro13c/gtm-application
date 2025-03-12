@@ -13,9 +13,19 @@
     "lint:fix": "eslint src --ext js,jsx --fix",
     "backend": "node backend/src/server.js",
     "backend:dev": "nodemon backend/src/server.js",
-    "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push",
-    "prisma:seed": "node prisma/seed.js"
+    "prisma:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "prisma:push": "prisma db push --schema=./prisma/schema.prisma",
+    "prisma:seed": "node prisma/seed.js",
+    "update-db": "node update-db.js",
+    "setup-db": "node setup-db.js",
+    "init-backend": "node backend-init.js",
+    "fix-prisma": "node fix-prisma.js",
+    "fix-prisma-backend": "node fix-prisma-backend.js",
+    "fix-db-permissions": "node fix-db-permissions.js",
+    "free-ports": "node free-port.js",
+    "test-prisma": "node test-prisma.js",
+    "start": "node start.js",
+    "start:robust": "node start-robust.js"
   },
   "keywords": [
     "sales",

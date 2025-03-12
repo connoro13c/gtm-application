@@ -21,6 +21,8 @@ const DataMapping = ({ data, updateData }) => {
   const [mappedFields, setMappedFields] = useState(data.dataMapping || {});
   const [aiSuggestions, setAiSuggestions] = useState({});
   const [isProcessingAI, setIsProcessingAI] = useState(false);
+  const [aiSuggestionsRequested, setAiSuggestionsRequested] = useState(false);
+  const [showSuggestionSuccess, setShowSuggestionSuccess] = useState(false);
   const [mappingProgress, setMappingProgress] = useState({
     total: 0,
     mapped: 0,
@@ -67,41 +69,91 @@ const DataMapping = ({ data, updateData }) => {
   
   // Load source fields from the selected data source
   useEffect(() => {
+    console.log('DataMapping received data:', { dataSources: data.dataSources, uploadedFiles: data.uploadedFiles });
     const loadSourceFields = async () => {
       setIsLoading(true);
       try {
-        if (!data.dataSources || data.dataSources.length === 0) {
-          setSourceFields([]);
-          return;
+        const noDataSources = !data.dataSources || data.dataSources.length === 0;
+        const noUploadedFiles = !data.uploadedFiles || data.uploadedFiles.length === 0;
+        
+        if (noDataSources && noUploadedFiles) {
+        setSourceFields([]);
+        return;
+        }
+          
+          // Log received data for debugging
+          console.log('Data mapping received:', {
+            dataSources: data.dataSources,
+            uploadedFiles: data.uploadedFiles ? data.uploadedFiles.length : 0
+          });
+        
+        // Check if we have uploaded files
+        const hasUploadedFiles = data.uploadedFiles && data.uploadedFiles.length > 0;
+        
+        // Process fields from real data sources
+        let allFields = [];
+        if (hasUploadedFiles) {
+          console.log('Processing uploaded files for mapping', data.uploadedFiles);
+          
+          const fileFields = data.uploadedFiles.flatMap((file, index) => {
+            // Check if file has processed structure
+            if (file.structure && file.structure.headers && file.structure.headers.length > 0) {
+              // Get processed structure from file
+              const { headers, sampleData, inferredDataTypes = {} } = file.structure;
+              
+              // Convert headers to field definitions
+              return headers.map(header => {
+                // Get example data for this field from the first row if available
+                const exampleData = sampleData && sampleData.length > 0 ? sampleData[0][header] : '';
+                
+                // Get inferred data type or make a best guess based on example data
+                let dataType = inferredDataTypes[header] || 'string';
+                if (!inferredDataTypes[header]) {
+                  // Fallback data type inference
+                  if (exampleData !== undefined && exampleData !== null) {
+                    if (!isNaN(Number(exampleData))) {
+                      dataType = 'number';
+                    } else if (/^\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{4}|\d{1,2}-\d{1,2}-\d{4}/.test(exampleData)) {
+                      dataType = 'date';
+                    } else if (/^true$|^false$/i.test(exampleData)) {
+                      dataType = 'boolean';
+                    }
+                  }
+                }
+                
+                // Create a unique field ID that includes the file name and header
+                const fieldId = `${file.name.replace(/[^a-zA-Z0-9]/g, '_')}_${header.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                
+                return {
+                  id: fieldId,
+                  // Just use the header name directly without file prefix for cleaner display
+                  name: header,
+                  dataType,
+                  example: exampleData !== undefined ? String(exampleData) : '',
+                  mapped: false,
+                  sourceFile: file.name,
+                  sourceHeader: header,
+                  fileId: file.id || `file-${index}`
+                };
+              });
+            } else {
+              console.warn('File missing structure or headers:', file.name);
+              return [];
+            }
+          });
+          
+          // Log the processed fields
+          console.log(`Generated ${fileFields.length} fields from uploaded files`);
+          
+          // Add to all fields
+          allFields = [...allFields, ...fileFields];
         }
         
-        // In a real implementation, this would be an API call to fetch fields from the selected data sources
-        // For now, we'll simulate the API call with a timeout
-        await new Promise(resolve => setTimeout(resolve, 500));
+        setSourceFields(allFields);
         
-        // This would be the response from the API - simulating a CSV file with columns
-        const mockFields = [
-          { id: 'account_id', name: 'Account ID', dataType: 'string', example: 'ACC-12345', mapped: false },
-          { id: 'company_name', name: 'Company Name', dataType: 'string', example: 'Acme Corp', mapped: false },
-          { id: 'industry', name: 'Industry', dataType: 'string', example: 'Technology', mapped: false },
-          { id: 'revenue', name: 'Annual Revenue', dataType: 'number', example: '$5.2M', mapped: false },
-          { id: 'employees', name: 'Employee Count', dataType: 'number', example: '250', mapped: false },
-          { id: 'country', name: 'Country', dataType: 'string', example: 'United States', mapped: false },
-          { id: 'created_date', name: 'Created Date', dataType: 'date', example: '2023-06-15', mapped: false },
-          { id: 'email_opens', name: 'Email Opens', dataType: 'number', example: '32', mapped: false },
-          { id: 'website_visits', name: 'Website Visits', dataType: 'number', example: '128', mapped: false },
-          { id: 'event_attendances', name: 'Event Attendances', dataType: 'number', example: '3', mapped: false },
-          { id: 'health_score', name: 'Health Score', dataType: 'number', example: '85', mapped: false },
-          { id: 'nps', name: 'NPS', dataType: 'number', example: '8', mapped: false },
-          { id: 'support_tickets', name: 'Support Tickets', dataType: 'number', example: '5', mapped: false },
-          { id: 'logins_per_month', name: 'Logins Per Month', dataType: 'number', example: '45', mapped: false },
-          { id: 'active_users', name: 'Active Users', dataType: 'number', example: '12', mapped: false }
-        ];
-        
-        setSourceFields(mockFields);
-        
-        // Generate AI suggestions after loading the data
-        generateAiSuggestions(mockFields);
+        // AI suggestions will be generated when user clicks the button
+        // not automatically
+        console.log('Fields loaded, AI suggestions can be requested by the user');
       } catch (error) {
         console.error('Error loading source fields:', error);
       } finally {
@@ -110,43 +162,104 @@ const DataMapping = ({ data, updateData }) => {
     };
     
     loadSourceFields();
-  }, [data.dataSources]);
+  }, [data.dataSources, data.uploadedFiles]);
   
-  // Generate AI suggestions for field categorization
+  // Generate AI suggestions for field categorization from secure backend API
   const generateAiSuggestions = useCallback(async (fields) => {
     setIsProcessingAI(true);
     
     try {
-      // In a real implementation, this would be an API call to an AI service
-      // For now, we'll simulate AI suggestions with a timeout
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Prepare the fields data to send to the backend API
+      const fieldsData = fields.map(field => ({
+        id: field.id,
+        name: field.name || field.sourceHeader || '',
+        dataType: field.dataType || 'string',
+        example: field.example || '',
+        sourceFile: field.sourceFile || ''
+      }));
       
-      // Mock AI suggestions for field categorization
-      const suggestions = {
-        account_id: 'identification',
-        company_name: 'identification',
-        industry: 'firmographic',
-        revenue: 'firmographic',
-        employees: 'firmographic',
-        country: 'firmographic',
-        created_date: 'firmographic',
-        email_opens: 'engagement',
-        website_visits: 'engagement',
-        event_attendances: 'marketing',
-        health_score: 'health',
-        nps: 'health',
-        support_tickets: 'health',
-        logins_per_month: 'product',
-        active_users: 'product'
-      };
+      console.log('Frontend: Sending AI categorization request to backend');
+      console.log('API URL:', import.meta.env.VITE_API_URL);
       
-      setAiSuggestions(suggestions);
+      // Call the secure backend API that handles the AI integration
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/ai/field-categories`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ fields: fieldsData })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data && data.suggestions) {
+        setAiSuggestions(data.suggestions);
+      } else {
+        throw new Error('Invalid response format from AI API');
+      }
     } catch (error) {
       console.error('Error generating AI suggestions:', error);
+      
+      // Fallback to local suggestion generation if API call fails
+      const fallbackSuggestions = generateLocalSuggestions(fields);
+      setAiSuggestions(fallbackSuggestions);
     } finally {
       setIsProcessingAI(false);
     }
   }, []);
+  
+  // Local fallback function for generating category suggestions
+  const generateLocalSuggestions = (fields) => {
+    const suggestions = {};
+    
+    fields.forEach(field => {
+      const fieldName = (field.name || field.sourceHeader || '').toLowerCase();
+      const fieldId = field.id;
+      
+      // Identification fields
+      if (fieldName.includes('id') || fieldName.includes('identifier') || fieldName.includes('key') || 
+          fieldName.includes('name') || fieldName.includes('company') || fieldName.includes('account')) {
+        suggestions[fieldId] = 'identification';
+      }
+      // Firmographic fields
+      else if (fieldName.includes('industry') || fieldName.includes('revenue') || fieldName.includes('employee') || 
+               fieldName.includes('size') || fieldName.includes('country') || fieldName.includes('region') || 
+               fieldName.includes('sector') || fieldName.includes('founded') || fieldName.includes('created')) {
+        suggestions[fieldId] = 'firmographic';
+      }
+      // Engagement fields
+      else if (fieldName.includes('engage') || fieldName.includes('visit') || fieldName.includes('click') || 
+               fieldName.includes('open') || fieldName.includes('conversion') || fieldName.includes('activity')) {
+        suggestions[fieldId] = 'engagement';
+      }
+      // Health fields
+      else if (fieldName.includes('health') || fieldName.includes('score') || fieldName.includes('nps') || 
+               fieldName.includes('satisfaction') || fieldName.includes('ticket') || fieldName.includes('support') || 
+               fieldName.includes('issue')) {
+        suggestions[fieldId] = 'health';
+      }
+      // Product usage fields
+      else if (fieldName.includes('usage') || fieldName.includes('login') || fieldName.includes('user') || 
+               fieldName.includes('active') || fieldName.includes('session') || fieldName.includes('feature')) {
+        suggestions[fieldId] = 'product';
+      }
+      // Marketing fields
+      else if (fieldName.includes('campaign') || fieldName.includes('marketing') || fieldName.includes('event') || 
+               fieldName.includes('webinar') || fieldName.includes('download') || fieldName.includes('lead')) {
+        suggestions[fieldId] = 'marketing';
+      }
+      // Default to other for unrecognized fields
+      else {
+        suggestions[fieldId] = 'other';
+      }
+    });
+    
+    return suggestions;
+  };
   
   // Handle row selection with ctrl/shift click
   const handleRowSelect = (fieldId, event) => {
@@ -349,7 +462,48 @@ const DataMapping = ({ data, updateData }) => {
   const progressPercentage = mappingProgress.percentage;
   
   return (
-    <div className="data-mapping-container">
+    <div className="data-mapping-container relative">
+      {/* AI Processing Overlay */}
+      {isProcessingAI && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-8 rounded-lg shadow-lg text-center max-w-md">
+            <div className="relative mb-6">
+              <div className="w-24 h-24 border-t-4 border-blue-500 border-solid rounded-full animate-spin mx-auto"></div>
+              <div className="w-24 h-24 border-t-4 border-r-4 border-vermilion-7 border-solid rounded-full animate-spin absolute top-0 mx-auto opacity-70" style={{ animationDuration: '1.5s', left: 'calc(50% - 3rem)' }}></div>
+              <Sparkles className="text-blue-400 w-10 h-10 absolute" style={{ top: 'calc(50% - 1.25rem)', left: 'calc(50% - 1.25rem)' }} />
+            </div>
+            <h3 className="text-xl font-medium text-white mb-2">AI Processing Your Data</h3>
+            <p className="text-gray-300 mb-4">
+              Our AI is analyzing your data fields to provide intelligent categorization suggestions.
+              This may take a moment...
+            </p>
+            <div className="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
+              <div className="h-full bg-blue-500 animate-pulse" style={{ width: '100%' }}></div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Success notification for AI suggestions */}
+      {showSuggestionSuccess && (
+        <div className="fixed bottom-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50 animate-fade-in-up">
+          <div className="flex items-center">
+            <CheckCircle size={20} className="mr-2" />
+            <div>
+              <h4 className="font-medium">AI Suggestions Ready!</h4>
+              <p className="text-sm">Field categorization suggestions have been generated.</p>
+            </div>
+            <button
+              className="ml-4 text-white hover:text-gray-200"
+              onClick={() => setShowSuggestionSuccess(false)}
+              aria-label="Close notification"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+      
       <div className="mb-6">
         <h3 className="text-lg font-medium text-blue-500 mb-2">Map Your Data Fields</h3>
         <p className="text-gray-300 mb-4">
@@ -399,21 +553,63 @@ const DataMapping = ({ data, updateData }) => {
               <h4 className="font-medium text-white">Source Fields</h4>
               
               {/* AI Suggestion Action Button */}
-              <button
-                type="button"
-                className="flex items-center px-3 py-1.5 bg-blue-600 rounded-md text-white text-sm hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={handleAcceptAllSuggestions}
-                disabled={isProcessingAI || Object.keys(aiSuggestions).length === 0}
-                aria-label="Accept all AI suggestions"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    handleAcceptAllSuggestions();
-                  }
-                }}
-              >
-                <Sparkles size={14} className="mr-1.5" />
-                Accept All AI Suggestions
-              </button>
+              {!aiSuggestionsRequested || Object.keys(aiSuggestions).length === 0 ? (
+                <button
+                  type="button"
+                  className="flex items-center px-4 py-2 bg-blue-500 rounded-md text-white text-sm hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => {
+                    setIsProcessingAI(true);
+                    setAiSuggestionsRequested(true);
+                    // Generate AI suggestions for the fields
+                    generateAiSuggestions(sourceFields)
+                      .then(() => {
+                        // Show success notification
+                        setShowSuggestionSuccess(true);
+                        // Hide success notification after 5 seconds
+                        setTimeout(() => {
+                          setShowSuggestionSuccess(false);
+                        }, 5000);
+                      })
+                      .catch(error => {
+                        console.error('Failed to get AI suggestions:', error);
+                        // Could add an error notification here
+                      })
+                      .finally(() => {
+                        setIsProcessingAI(false);
+                      });
+                  }}
+                  disabled={isProcessingAI || sourceFields.length === 0}
+                  aria-label="Get AI suggestions"
+                >
+                  {isProcessingAI ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2" />
+                      Processing
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={16} className="mr-2" />
+                      Get AI Suggestions
+                    </>
+                  )}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="flex items-center px-4 py-2 bg-vermilion-7 rounded-md text-white text-sm hover:bg-vermilion-8 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleAcceptAllSuggestions}
+                  disabled={isProcessingAI || Object.keys(aiSuggestions).length === 0}
+                  aria-label="Accept all AI suggestions"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      handleAcceptAllSuggestions();
+                    }
+                  }}
+                >
+                  <Sparkles size={16} className="mr-2" />
+                  Accept All AI Suggestions
+                </button>
+              )}
             </div>
             
             {/* Data fields table */}
@@ -421,10 +617,9 @@ const DataMapping = ({ data, updateData }) => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-700 text-gray-400">
-                    <th className="px-4 py-2 text-left font-medium">ID</th>
-                    <th className="px-4 py-2 text-left font-medium">Name</th>
+                    <th className="px-4 py-2 text-left font-medium">Field Name</th>
                     <th className="px-4 py-2 text-left font-medium">Example</th>
-                    <th className="px-4 py-2 text-left font-medium">Category</th>
+                    <th className="px-4 py-2 text-left font-medium">Data Categorization</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -450,8 +645,7 @@ const DataMapping = ({ data, updateData }) => {
                         onDragStart={(e) => handleDragStart(e, selectedRows.includes(field.id) ? selectedRows : [field.id])}
                         data-field-id={field.id}
                       >
-                        <td className="px-4 py-2 text-white">{field.id}</td>
-                        <td className="px-4 py-2 text-white">{field.name}</td>
+                        <td className="px-4 py-2 text-white">{field.name || field.sourceHeader || field.id}</td>
                         <td className="px-4 py-2 text-gray-400">{field.example}</td>
                         <td className="px-4 py-2">
                           {field.mapped ? (
@@ -460,10 +654,17 @@ const DataMapping = ({ data, updateData }) => {
                             </span>
                           ) : suggestedCategory ? (
                             <div className="flex items-center">
-                              <span className="text-gray-400 mr-2">AI: {DATA_CATEGORIES.find(cat => cat.id === suggestedCategory)?.name}</span>
+                              <div className="flex items-center">
+                                {(() => {
+                                  const cat = DATA_CATEGORIES.find(cat => cat.id === suggestedCategory);
+                                  const Icon = cat?.icon || Tag;
+                                  return <Icon size={14} className={`text-${cat?.color || 'gray'}-500 mr-1.5`} />;
+                                })()}
+                                <span className="text-gray-400">{DATA_CATEGORIES.find(cat => cat.id === suggestedCategory)?.name}</span>
+                              </div>
                               <button
                                 type="button"
-                                className="p-1 rounded-full bg-green-600 bg-opacity-20 text-green-500 hover:bg-opacity-30 transition-colors"
+                                className="p-1 rounded-full bg-green-600 bg-opacity-20 text-green-500 hover:bg-opacity-30 transition-colors ml-2"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleAcceptSuggestion(field.id);

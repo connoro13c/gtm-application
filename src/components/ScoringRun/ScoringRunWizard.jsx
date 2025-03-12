@@ -54,6 +54,7 @@ const ScoringRunWizard = ({ runData, onClose, onComplete }) => {
     name: runData?.name || '',
     description: runData?.description || '',
     dataSources: [],
+    uploadedFiles: [],
     dataMapping: {},
     selectedAlgorithm: null,
     algorithmConfig: {},

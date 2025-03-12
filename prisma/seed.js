@@ -3,6 +3,14 @@
  * Populates the database with initial test data
  */
 
+// Ensure Prisma client is generated before importing
+import { execSync } from 'child_process';
+try {
+  execSync('npx prisma generate --schema=./prisma/schema.prisma', { stdio: 'inherit' });
+} catch (error) {
+  console.error('Failed to generate Prisma client:', error.message);
+}
+
 import { PrismaClient } from '@prisma/client';
 import crypto from 'node:crypto';
 

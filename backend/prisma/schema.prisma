@@ -159,17 +159,3 @@ model ScenarioResult {
   runBy      User     @relation("RunByUser", fields: [runById], references: [id])
   runById    String
 }
-
-// APIUsageLog model for tracking external API calls
-model APIUsageLog {
-  id            String   @id @default(uuid())
-  endpoint      String
-  method        String
-  requestBody   String?   @db.Text
-  responseBody  String?   @db.Text
-  statusCode    Int?
-  success       Boolean
-  errorMessage  String?   @db.Text
-  duration      Int       // Duration in milliseconds
-  createdAt     DateTime  @default(now())
-}

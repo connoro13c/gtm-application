@@ -10,17 +10,19 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@prisma/client": "^5.4.2",
+    "@prisma/client": "^6.4.1",
+    "axios": "^1.8.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-jwt": "^8.4.1",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.2",
-    "jwks-rsa": "^3.1.0"
+    "jwks-rsa": "^3.1.0",
+    "pg": "^8.13.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
-    "prisma": "^5.4.2"
+    "prisma": "^6.4.1"
   }
 }
