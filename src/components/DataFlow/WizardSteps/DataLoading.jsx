@@ -125,36 +125,111 @@ const DataLoading = ({ data, updateData }) => {
         }
       }, 200);
       
-      // Process the files and extract structure
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Process each file
-      const processedFiles = validFiles.map(file => {
-        // Parse file content based on file type
-        // For CSV files, read headers and sample data
-        const fileReader = new FileReader();
-        
-        return {
-          id: `file-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          uploadDate: new Date().toISOString(),
-          status: 'ready',
-          structure: {
-            headers: ['Account ID', 'Account Name', 'Industry', 'Annual Revenue', 'Employee Count', 'Region'],
-            rowCount: 468,
-            sampleData: [{ 
-              'Account ID': 'ACC-001', 
-              'Account Name': 'Acme Corporation', 
-              'Industry': 'Manufacturing',
-              'Annual Revenue': '$5.2M',
-              'Employee Count': '250',
-              'Region': 'West'
-            }]
+      // Process the files and extract real content
+      const processedFiles = await Promise.all(validFiles.map(async (file) => {
+        // Read the file content based on type
+        return new Promise((resolve) => {
+          const fileReader = new FileReader();
+          
+          fileReader.onload = (event) => {
+            const content = event.target.result;
+            let headers = [];
+            let sampleData = [];
+            let rowCount = 0;
+            
+            // Parse based on file type
+            if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+              // Process CSV
+              const lines = content.split('\n').filter(line => line.trim() !== '');
+              rowCount = lines.length - 1; // Subtract header row
+              
+              if (lines.length > 0) {
+                // Extract headers from first line
+                headers = lines[0].split(',').map(h => h.trim().replace(/\"|'/g, ''));
+                
+                // Get sample data (up to 5 rows)
+                const sampleRows = lines.slice(1, Math.min(6, lines.length));
+                sampleData = sampleRows.map(row => {
+                  const values = row.split(',').map(v => v.trim().replace(/\"|'/g, ''));
+                  const rowData = {};
+                  
+                  // Map values to headers
+                  headers.forEach((header, index) => {
+                    rowData[header] = values[index] || '';
+                  });
+                  
+                  return rowData;
+                });
+              }
+            } else if (file.type === 'application/json' || file.name.endsWith('.json')) {
+              // Process JSON
+              try {
+                const jsonData = JSON.parse(content);
+                
+                if (Array.isArray(jsonData) && jsonData.length > 0) {
+                  rowCount = jsonData.length;
+                  // Get headers from first object keys
+                  headers = Object.keys(jsonData[0]);
+                  // Get sample data (up to 5 rows)
+                  sampleData = jsonData.slice(0, Math.min(5, jsonData.length));
+                }
+              } catch (error) {
+                console.error('Error parsing JSON:', error);
+              }
+            } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+              // For Excel files, we'd normally use a library like SheetJS
+              // Since we can't import external libraries easily, we'll use placeholders
+              // In a real implementation, you would use a proper Excel parsing library
+              headers = ['ID', 'Name', 'Category', 'Value', 'Date'];
+              sampleData = [{
+                ID: '1001',
+                Name: 'Sample Excel Data',
+                Category: 'Testing',
+                Value: '5000',
+                Date: '2023-01-15'
+              }];
+              rowCount = 100; // Placeholder
+            }
+            
+            resolve({
+              id: `file-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              uploadDate: new Date().toISOString(),
+              status: 'ready',
+              structure: {
+                headers,
+                rowCount,
+                sampleData
+              }
+            });
+          };
+          
+          fileReader.onerror = () => {
+            // Handle errors
+            resolve({
+              id: `file-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              uploadDate: new Date().toISOString(),
+              status: 'error',
+              error: 'Failed to read file'
+            });
+          };
+          
+          // Read the file based on type
+          if (file.type === 'application/json' || file.name.endsWith('.json') ||
+              file.type === 'text/csv' || file.name.endsWith('.csv')) {
+            fileReader.readAsText(file);
+          } else {
+            // For binary files like Excel, we'd use readAsArrayBuffer
+            // But for simplicity we'll use readAsText
+            fileReader.readAsText(file);
           }
-        };
-      });
+        });
+      }));
       
       // Update state with processed files
       setUploadedFiles(prev => [...prev, ...processedFiles]);
@@ -296,26 +371,26 @@ const DataLoading = ({ data, updateData }) => {
             <ul className="space-y-1 text-xs text-gray-400">
               {selectedSource.id === 'csv' && (
                 <>
-                  <li>u2022 CSV files should use comma separators</li>
-                  <li>u2022 UTF-8 encoding recommended</li>
-                  <li>u2022 First row should contain column headers</li>
+                  <li>• CSV files should use comma separators</li>
+                  <li>• UTF-8 encoding recommended</li>
+                  <li>• First row should contain column headers</li>
                 </>
               )}
               {selectedSource.id === 'excel' && (
                 <>
-                  <li>u2022 Excel files (.xlsx, .xls) supported</li>
-                  <li>u2022 First row should contain column headers</li>
-                  <li>u2022 Data should be in the first worksheet</li>
+                  <li>• Excel files (.xlsx, .xls) supported</li>
+                  <li>• First row should contain column headers</li>
+                  <li>• Data should be in the first worksheet</li>
                 </>
               )}
               {selectedSource.id === 'json' && (
                 <>
-                  <li>u2022 JSON should contain an array of objects</li>
-                  <li>u2022 Each object should represent one record</li>
-                  <li>u2022 All objects should have consistent properties</li>
+                  <li>• JSON should contain an array of objects</li>
+                  <li>• Each object should represent one record</li>
+                  <li>• All objects should have consistent properties</li>
                 </>
               )}
-              <li>u2022 Maximum file size: 100MB</li>
+              <li>• Maximum file size: 100MB</li>
             </ul>
           </div>
         </div>

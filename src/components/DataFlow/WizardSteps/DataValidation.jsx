@@ -69,21 +69,52 @@ const DataValidation = ({ data, updateData }) => {
           }
         }
         
-        // Add data quality checks
-        issues.push({ 
-          type: 'warning', 
-          message: 'Possible duplicate account names detected', 
-          field: 'Account Name', 
-          count: 2 
-        });
+        // Check for duplicate names or IDs if present
+      if (file.structure && file.structure.sampleData.length > 1) {
+        const accountNameField = file.structure.headers.find(h => 
+          h.toLowerCase().includes('name') || h.toLowerCase().includes('account') || h.toLowerCase().includes('company')
+        );
         
-        // Add data type validation
-        issues.push({ 
-          type: 'warning', 
-          message: 'Non-numeric values in revenue field', 
-          field: 'Annual Revenue', 
-          count: 5 
-        });
+        if (accountNameField) {
+          // Check for duplicate names
+          const names = file.structure.sampleData.map(row => row[accountNameField]);
+          const uniqueNames = new Set(names);
+          
+          if (uniqueNames.size < names.length) {
+            issues.push({ 
+              type: 'warning', 
+              message: 'Possible duplicate account names detected', 
+              field: accountNameField, 
+              count: names.length - uniqueNames.size 
+            });
+          }
+        }
+        
+        // Check for non-numeric values in numeric fields
+        const revenueField = file.structure.headers.find(h => 
+          h.toLowerCase().includes('revenue') || h.toLowerCase().includes('sales') || h.toLowerCase().includes('arr')
+        );
+        
+        if (revenueField) {
+          const nonNumericValues = file.structure.sampleData.filter(row => {
+            const value = row[revenueField];
+            if (!value) return false;
+            // Remove currency symbols and commas, then check if it's a number
+            const cleaned = value.toString().replace(/[$,]/g, '');
+            return isNaN(parseFloat(cleaned));
+          });
+          
+          if (nonNumericValues.length > 0) {
+            issues.push({ 
+              type: 'warning', 
+              message: 'Non-numeric values in revenue field', 
+              field: revenueField, 
+              count: nonNumericValues.length 
+            });
+          }
+        }
+      }
+
         
         // If file looks good overall
         if (issues.length === 0) {
