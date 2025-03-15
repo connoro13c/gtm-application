@@ -15,6 +15,14 @@ const config = {
   "framework": {
     "name": "@storybook/react-vite",
     "options": {}
+  },
+  "viteFinal": async (config) => {
+    // Handle file paths with spaces
+    config.resolve = config.resolve || {};
+    config.resolve.alias = {
+      ...config.resolve.alias,
+    };
+    return config;
   }
 };
 export default config;
