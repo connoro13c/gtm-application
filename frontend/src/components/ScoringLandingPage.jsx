@@ -6,15 +6,7 @@ const ScoringLandingPage = () => {
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [showPulse, setShowPulse] = useState(false);
   
-  // Track cursor for interactive elements
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setCursorPosition({ x: e.clientX, y: e.clientY });
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  // Cursor tracking removed for performance
 
   // Create pulse effect on page load
   useEffect(() => {
@@ -77,98 +69,24 @@ const ScoringLandingPage = () => {
         <div className="gradient-orb orb-4"></div>
         <div className="grid-overlay"></div>
         
-        {/* Animated data points */}
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="data-point"
-            initial={{ 
-              x: Math.random() * window.innerWidth, 
-              y: Math.random() * window.innerHeight,
-              opacity: 0.2 + Math.random() * 0.5
-            }}
-            animate={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
-              transition: {
-                duration: 20 + Math.random() * 30,
-                repeat: Infinity,
-                repeatType: "reverse"
-              }
-            }}
-          />
-        ))}
+        {/* Animated data points removed */}
       </div>
     );
   };
 
-  // Interactive cursor follow element
+  // Interactive cursor follow element - removed for performance
   const CursorFollower = () => {
-    return (
-      <motion.div 
-        className="cursor-follower"
-        animate={{
-          x: cursorPosition.x - 25,
-          y: cursorPosition.y - 25,
-        }}
-        transition={{
-          type: "spring",
-          mass: 0.1,
-          stiffness: 120,
-          damping: 10
-        }}
-      />
-    );
+    return null;
   };
 
-  // 3D Data visualization
+  // 3D Data visualization - simplified for performance
   const DataVisualization = () => {
     return (
       <div className="data-visualization">
-        <motion.div 
-          className="data-sphere"
-          animate={{ 
-            rotateY: [0, 360],
-            rotateX: [10, -10, 10]
-          }}
-          transition={{ 
-            rotateY: { duration: 20, repeat: Infinity, ease: "linear" },
-            rotateX: { duration: 10, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }
-          }}
-        >
-          {[...Array(8)].map((_, i) => (
-            <div 
-              key={i} 
-              className="orbit" 
-              style={{ 
-                transform: `rotateX(${i * 22.5}deg) rotateY(${i * 45}deg)`,
-                borderColor: phases[i % 4].color 
-              }}
-            >
-              <div 
-                className="data-node" 
-                style={{ 
-                  backgroundColor: phases[i % 4].color,
-                  boxShadow: `0 0 15px ${phases[i % 4].color}`
-                }}
-              />
-            </div>
-          ))}
-        </motion.div>
-        
-        <motion.div 
-          className="glow-effect"
-          animate={{ 
-            opacity: [0.5, 0.8, 0.5], 
-            scale: [1, 1.1, 1] 
-          }}
-          transition={{ 
-            duration: 3, 
-            repeat: Infinity, 
-            repeatType: "reverse", 
-            ease: "easeInOut" 
-          }}
-        />
+        <div className="data-sphere-static">
+          {/* 3D visualization removed for performance */}
+          <div className="static-visualization-text">Data Visualization</div>
+        </div>
       </div>
     );
   };
@@ -186,17 +104,13 @@ const ScoringLandingPage = () => {
             whileTap={{ scale: 0.95 }}
             style={{ 
               background: activeStep === index ? phase.gradient : 'rgba(255, 255, 255, 0.1)',
+              boxShadow: activeStep === index ? `0 4px 10px ${phase.color}60` : 'none',
+              color: activeStep === index ? '#FFFFFF' : 'rgba(255, 255, 255, 0.7)'
             }}
           >
             <span className="phase-icon">{phase.icon}</span>
             <span className="phase-label">{phase.title}</span>
-            {activeStep === index && (
-              <motion.div 
-                className="active-highlight" 
-                layoutId="activePhase"
-                style={{ background: phase.gradient }}
-              />
-            )}
+            {/* Active highlight removed */}
           </motion.div>
         ))}
       </div>
@@ -281,32 +195,7 @@ const ScoringLandingPage = () => {
     return (
       <div className="data-flow-container">
         <div className="data-flow">
-          {[...Array(20)].map((_, i) => (
-            <motion.div 
-              key={i}
-              className="data-particle"
-              style={{ 
-                backgroundColor: phases[i % 4].color,
-                width: 3 + Math.random() * 6,
-                height: 3 + Math.random() * 6,
-                opacity: 0.3 + Math.random() * 0.7
-              }}
-              initial={{ 
-                x: "-10%", 
-                y: -10 + Math.random() * 120 
-              }}
-              animate={{ 
-                x: "110%", 
-                y: -10 + Math.random() * 120 
-              }}
-              transition={{ 
-                duration: 2 + Math.random() * 8, 
-                repeat: Infinity, 
-                delay: Math.random() * 2, 
-                ease: "linear" 
-              }}
-            />
-          ))}
+          {/* Data flow particles removed for performance reasons */}
         </div>
       </div>
     );

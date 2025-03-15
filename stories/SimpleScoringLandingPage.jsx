@@ -24,7 +24,7 @@ const SimpleScoringLandingPage = () => {
             WebkitTextFillColor: 'transparent',
             marginBottom: '20px'
           }}>
-            Propensity to Buy
+            Account Scoring
           </h1>
           <p style={{ 
             fontSize: '20px', 
