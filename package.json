@@ -1,0 +1,27 @@
+{
+  "name": "gtm-application",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {
+    "@chromatic-com/storybook": "^3.2.6",
+    "@storybook/addon-essentials": "^8.6.5",
+    "@storybook/addon-interactions": "^8.6.5",
+    "@storybook/addon-onboarding": "^8.6.5",
+    "@storybook/blocks": "^8.6.5",
+    "@storybook/builder-vite": "^8.6.5",
+    "@storybook/react": "^8.6.5",
+    "@storybook/react-vite": "^8.6.5",
+    "@storybook/test": "^8.6.5",
+    "prop-types": "^15.8.1",
+    "storybook": "^8.6.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

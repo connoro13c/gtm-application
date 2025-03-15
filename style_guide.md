@@ -7,6 +7,20 @@
 - Background: #F8F8F8 (Greyscale-10)
 - Text: #202020 (Greyscale-2)
 
+## Background Colors
+
+### Dark Mode Backgrounds
+- Pure black: #020202 (Greyscale-0) for main app interfaces
+- Near black: #0E0E0E (Greyscale-1) for cards and elevated surfaces
+- Dark Vermillion gradient: Gradient from Vermillion-00 to Vermillion-02
+- Dark Violet gradient: Gradient from Violet-00 to Violet-02
+- Dark Teal gradient: Gradient from Teal-00 to Teal-02
+
+### Background Textures
+- Subtle curved line patterns for dark backgrounds
+- Use opacity 5-15% for texture overlays
+- Match texture color with primary color family (Vermillion, Violet, or Teal)
+
 ## Background-Specific Colors
 
 ### Dark Backgrounds
