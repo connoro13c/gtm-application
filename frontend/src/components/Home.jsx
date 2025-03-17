@@ -1,7 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const Home = () => {
+// Category definitions for node mapping
+const categoryMapping = {
+  'Scoring & Planning': ['node1', 'node2', 'node4'], // Account Scoring, Account Segmentation, Territory Planning
+  'Planning & Strategy': ['node7', 'node9'], // Quota Setting, Compensation Planning
+  'Execution & Operations': ['node5', 'node6', 'node10'], // Sales Execution, Pipeline Management, Customer Success
+  'Strategy & Adjustments': ['node3', 'node8'] // Marketing Alignment, Revenue Forecasting
+};
+
+const Home = ({ activeCategory }) => {
   const [activeNode, setActiveNode] = useState(null);
+  // Track highlighted category nodes
+  const [highlightedNodes, setHighlightedNodes] = useState([]);
   const [persistentNode, setPersistentNode] = useState(null); // Last hovered node
   const [nodePositions, setNodePositions] = useState({});
   const [draggedNode, setDraggedNode] = useState(null);
@@ -11,66 +21,73 @@ const Home = () => {
   // Node definitions with descriptions, colors and connection mappings
   const nodeDefinitions = [
     { 
+      id: 'node10',
+      title: 'Customer Success & Retention', 
+      description: 'Ensure customer satisfaction and reduce churn through proactive engagement.',
+      color: '#90EE90', // Green - Execution & Operations
+      connects: ['node8']
+    },
+    { 
       id: 'node1',
       title: 'Account Scoring', 
       description: 'The foundation of GTM strategy, determining propensity to buy scores for accounts.',
-      color: '#9747FF',
+      color: '#89CFF0', // Light blue - Scoring & Planning
       connects: ['node3', 'node5']
     },
     { 
       id: 'node2',
       title: 'Account Segmentation', 
       description: 'Group accounts by characteristics to optimize targeting and resource allocation.',
-      color: '#FF4B4B',
+      color: '#89CFF0', // Light blue - Scoring & Planning
       connects: ['node5', 'node6']
     },
     { 
       id: 'node3',
       title: 'Marketing Alignment', 
       description: 'Align marketing efforts with sales strategy based on account scoring insights.',
-      color: '#4B7BFF',
+      color: '#FFD700', // Yellow - Strategy & Adjustments
       connects: ['node2', 'node6']
     },
     { 
       id: 'node4',
       title: 'Territory Planning', 
       description: 'Design optimal territories using account scoring to balance opportunity.',
-      color: '#00C48C',
+      color: '#89CFF0', // Light blue - Scoring & Planning
       connects: ['node7', 'node8']
     },
     { 
       id: 'node5',
       title: 'Sales Execution', 
       description: 'Tactical implementation of account-based strategy guided by scoring insights.',
-      color: '#9747FF',
+      color: '#90EE90', // Green - Execution & Operations
       connects: []
     },
     { 
       id: 'node6',
       title: 'Pipeline Management', 
       description: 'Track and optimize sales pipeline based on account scoring predictions.',
-      color: '#FF4B4B',
+      color: '#90EE90', // Green - Execution & Operations
       connects: ['node8']
     },
     { 
       id: 'node7',
       title: 'Quota Setting', 
       description: 'Set realistic and balanced quotas informed by account scoring data.',
-      color: '#4B7BFF',
+      color: '#F08080', // Pink/Red - Planning & Strategy
       connects: ['node9']
     },
     { 
       id: 'node8',
       title: 'Revenue Forecasting', 
       description: 'Predict future revenue streams based on account propensity scores.',
-      color: '#00C48C',
+      color: '#FFD700', // Yellow - Strategy & Adjustments
       connects: ['node7']
     },
     { 
       id: 'node9',
       title: 'Compensation Planning', 
       description: 'Develop compensation plans based on quota and territory assignments.',
-      color: '#9747FF',
+      color: '#F08080', // Pink/Red - Planning & Strategy
       connects: []
     }
   ];
@@ -108,6 +125,27 @@ const Home = () => {
     });
     setNodePositions(initialPositions);
   }, []);
+  
+  // Update highlighted nodes when activeCategory changes
+  // Using a direct state update instead of derived state
+  useEffect(() => {
+    console.log('Home received activeCategory:', activeCategory);
+    if (activeCategory && categoryMapping[activeCategory]) {
+      console.log('Highlighting nodes:', categoryMapping[activeCategory]);
+      // Force an immediate state update instead of relying on derived state
+      setHighlightedNodes([...categoryMapping[activeCategory]]);
+    } else {
+      setHighlightedNodes([]);
+    }
+  }, [activeCategory]);
+
+  // Debug what's in highlightedNodes anytime it changes
+  useEffect(() => {
+    console.log('highlightedNodes changed:', highlightedNodes);
+    // Force a re-render when highlightedNodes changes
+    const forceUpdate = setTimeout(() => {}, 0);
+    return () => clearTimeout(forceUpdate);
+  }, [highlightedNodes]);
   
   // Oscillation animation logic
   // Simplified animation using setInterval for guaranteed movement
@@ -276,7 +314,8 @@ const Home = () => {
                       y1={sourcePos.y}
                       x2={targetPos.x} 
                       y2={targetPos.y}
-                      className={`connection-line ${activeNode === node.id || activeNode === targetId || persistentNode === node.id || persistentNode === targetId ? 'active' : ''}`}
+                      className={`connection-line ${activeNode === node.id || activeNode === targetId || persistentNode === node.id || persistentNode === targetId || highlightedNodes.includes(node.id) || highlightedNodes.includes(targetId) ? 'active' : ''}`}
+                      style={{ stroke: highlightedNodes.includes(node.id) || highlightedNodes.includes(targetId) ? 'rgba(255,255,255,0.8)' : undefined, strokeWidth: highlightedNodes.includes(node.id) || highlightedNodes.includes(targetId) ? 2 : undefined }}
                     />
                   );
                 }
@@ -292,21 +331,28 @@ const Home = () => {
                   y1={nodePositions.node4?.y || 0}
                   x2={nodePositions.node7?.x || 0} 
                   y2={nodePositions.node7?.y || 0}
-                  className="connection-line"
+                  className={`connection-line ${highlightedNodes.includes('node4') && highlightedNodes.includes('node7') ? 'active' : ''}`}
                 />
                 <line 
                   x1={nodePositions.node2?.x || 0} 
                   y1={nodePositions.node2?.y || 0}
                   x2={nodePositions.node5?.x || 0} 
                   y2={nodePositions.node5?.y || 0}
-                  className="connection-line"
+                  className={`connection-line ${highlightedNodes.includes('node2') && highlightedNodes.includes('node5') ? 'active' : ''}`}
                 />
                 <line 
                   x1={nodePositions.node1?.x || 0} 
                   y1={nodePositions.node1?.y || 0}
                   x2={nodePositions.node2?.x || 0} 
                   y2={nodePositions.node2?.y || 0}
-                  className="connection-line"
+                  className={`connection-line ${highlightedNodes.includes('node1') && highlightedNodes.includes('node2') ? 'active' : ''}`}
+                />
+                <line 
+                  x1={nodePositions.node10?.x || 0} 
+                  y1={nodePositions.node10?.y || 0}
+                  x2={nodePositions.node8?.x || 0} 
+                  y2={nodePositions.node8?.y || 0}
+                  className={`connection-line ${highlightedNodes.includes('node10') && highlightedNodes.includes('node8') ? 'active' : ''}`}
                 />
               </>
             )}
@@ -318,7 +364,7 @@ const Home = () => {
               key={node.id}
               ref={nodeRefs.current[node.id]}
               id={node.id}
-              className={`web-node ${activeNode === node.id || persistentNode === node.id ? 'active' : ''}`}
+              className={`web-node ${activeNode === node.id || persistentNode === node.id || highlightedNodes.includes(node.id) ? 'active' : ''}`}
               style={{
                 backgroundColor: node.color,
                 left: nodePositions[node.id]?.x || 0,
@@ -338,7 +384,7 @@ const Home = () => {
           {nodeDefinitions.map(node => (
             <div 
               key={node.id} 
-              className={`legend-item ${activeNode === node.id || persistentNode === node.id ? 'active' : ''}`}
+              className={`legend-item ${activeNode === node.id || persistentNode === node.id || highlightedNodes.includes(node.id) ? 'active' : ''}`}
               onClick={() => handleNodeClick(node.id)}
               onMouseDown={(e) => handleNodeMouseDown(e, node.id)}
               onMouseEnter={() => handleNodeHover(node.id)}

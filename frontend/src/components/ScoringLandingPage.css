@@ -17,6 +17,50 @@
   --blur-amount: 15px;
 }
 
+/* GTM Strategy Categories & Navigation */
+.gtm-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0 40px;
+  flex-wrap: wrap;
+}
+
+.gtm-navigation button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.gtm-navigation button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+.scoring-planning-btn {
+  background-color: #89CFF0;
+  color: #333;
+}
+
+.planning-strategy-btn {
+  background-color: #F08080;
+  color: #333;
+}
+
+.execution-operations-btn {
+  background-color: #90EE90;
+  color: #333;
+}
+
+.strategy-adjustments-btn {
+  background-color: #FFD700;
+  color: #333;
+}
+
 /* Base styling */
 .scoring-landing-page {
   position: relative;
