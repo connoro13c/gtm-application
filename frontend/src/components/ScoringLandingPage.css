@@ -27,6 +27,8 @@
   overflow: hidden;
 }
 
+
+
 /* Immersive background elements */
 .dynamic-background {
   position: absolute;
@@ -47,8 +49,8 @@
   background-image: 
     linear-gradient(rgba(30, 38, 55, 0.2) 1px, transparent 1px), 
     linear-gradient(90deg, rgba(30, 38, 55, 0.2) 1px, transparent 1px);
-  background-size: 40px 40px;
-  opacity: 0.3;
+  background-size: 30px 30px;
+  opacity: 0.5;
   z-index: 1;
 }
 
@@ -185,8 +187,8 @@
   width: 100%;
   height: 5px;
   background: linear-gradient(90deg, var(--accent-red) 0%, var(--accent-purple) 100%);
-  border-radius: 5px;
-  opacity: 0.5;
+  border-radius: 8px;
+  opacity: 0.8;
 }
 
 .hero-subtitle {
@@ -200,7 +202,7 @@
 .cta-button {
   position: relative;
   padding: 16px 36px;
-  border-radius: 50px;
+  border-radius: 8px;
   background: linear-gradient(135deg, var(--accent-red) 0%, var(--accent-purple) 100%);
   color: white;
   font-size: 18px;
@@ -210,6 +212,7 @@
   overflow: hidden;
   transition: all 0.3s ease;
   box-shadow: 0 10px 20px rgba(151, 71, 255, 0.3);
+
 }
 
 .button-glow {
@@ -398,7 +401,7 @@
   transition: all 0.3s ease;
 }
 
-/* Data visualization - simplified */
+/* Futuristic atomic globe data visualization */
 .data-visualization {
   position: relative;
   width: 100%;
@@ -406,25 +409,280 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  perspective: 1000px;
 }
 
-.data-sphere-static {
+.relationship-web {
   position: relative;
-  width: 250px;
-  height: 250px;
+  width: 900px;
+  height: 550px;
+  margin: 0 auto;
+  padding-top: 20px;
+  overflow: hidden;
+}
+
+.web-title {
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 30px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.web-container {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  overflow: hidden;
+}
+
+.connections-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.connection-line {
+  stroke: rgba(255, 255, 255, 0.15);
+  stroke-width: 1;
+  transition: stroke 0.3s;
+}
+
+.connection-line.active {
+  stroke: rgba(255, 255, 255, 0.6);
+  stroke-width: 2;
+}
+
+.web-node {
+  position: absolute;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: rgba(30, 38, 55, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 10;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.web-node:hover, .web-node.active {
+  transform: translate(-50%, -50%) scale(1.5) !important;
+  box-shadow: 0 0 15px white, 0 0 30px currentColor;
+  z-index: 20;
+}
+
+/* Relationship legend */
+.relationship-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin: 30px auto;
+  max-width: 800px;
+}
+
+.legend-item {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+  margin: 5px 8px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
-.static-visualization-text {
+.legend-item:hover, .legend-item.active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+  transition: all 0.3s;
+}
+
+.legend-item:hover .legend-color,
+.legend-item.active .legend-color {
+  transform: scale(1.3);
+  box-shadow: 0 0 10px currentColor;
+}
+
+.legend-text {
+  font-size: 12px;
   color: var(--text-secondary);
-  font-size: 16px;
+  white-space: nowrap;
+  transition: all 0.3s;
+}
+
+.legend-item:hover .legend-text,
+.legend-item.active .legend-text {
+  color: var(--text-primary);
+}
+
+/* Animation for SVG lines */
+@keyframes dashAnimation {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.connection-line {
+  stroke-dasharray: 5, 5;
+  animation: dashAnimation 30s linear infinite;
+}
+
+@keyframes lineGlow {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse-subtle {
+  0% { transform: scale(1); box-shadow: 0 0 8px rgba(255, 255, 255, 0.3); }
+  100% { transform: scale(1.15); box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
+}
+
+@keyframes line-pulse {
+  0% { opacity: 0.3; }
+  100% { opacity: 0.7; }
+}
+
+.data-connections {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    rgba(75, 123, 255, 0.1) 0%,
+    rgba(75, 123, 255, 0.05) 35%,
+    rgba(75, 123, 255, 0) 70%
+  );
+}
+
+/* Relationship lines between nodes */
+.atomic-globe::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    /* Account Scoring to Account Segmentation */
+    linear-gradient(135deg, rgba(151, 71, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%),
+    /* Account Scoring to Marketing Alignment */
+    linear-gradient(225deg, rgba(151, 71, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%),
+    /* Account Segmentation to Territory Planning */
+    linear-gradient(45deg, rgba(255, 75, 75, 0.2) 0%, rgba(255, 255, 255, 0) 70%),
+    /* Territory Planning to Quota Setting */
+    linear-gradient(90deg, rgba(75, 123, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%),
+    /* Quota Setting to Revenue Forecasting */
+    linear-gradient(180deg, rgba(0, 196, 140, 0.2) 0%, rgba(255, 255, 255, 0) 70%),
+    /* Pipeline Management to Revenue Forecasting */
+    linear-gradient(270deg, rgba(255, 75, 75, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+  border-radius: 50%;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Constellation sparkle effect */
+@keyframes sparkle {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.7; }
+}
+
+/* Constellation stars/dots in background */
+.constellation-map::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    radial-gradient(circle at 20% 40%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+    radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    radial-gradient(circle at 60% 30%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+    radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+    radial-gradient(circle at 90% 90%, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    radial-gradient(circle at 95% 20%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+    radial-gradient(circle at 15% 80%, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    radial-gradient(circle at 35% 95%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+    radial-gradient(circle at 55% 55%, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    radial-gradient(circle at 75% 15%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+    radial-gradient(circle at 85% 35%, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Star twinkle effect */
+.constellation-map::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.7) 1px, transparent 1px),
+    radial-gradient(circle at 45% 85%, rgba(255, 255, 255, 0.7) 1px, transparent 1px),
+    radial-gradient(circle at 85% 35%, rgba(255, 255, 255, 0.7) 1px, transparent 1px),
+    radial-gradient(circle at 65% 65%, rgba(255, 255, 255, 0.7) 1px, transparent 1px);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.5;
+  animation: sparkle 3s infinite alternate;
+}
+
+/* Tooltip styling */
+.node-tooltip {
+  position: absolute;
+  background-color: rgba(15, 23, 42, 0.9);
+  border-radius: 8px;
+  padding: 10px 15px;
+  z-index: 100;
+  width: 200px;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(5px);
+  transition: opacity 0.2s;
+  font-size: 12px;
+  color: var(--text-secondary);
   text-align: center;
-  padding: 20px;
+}
+
+.node-tooltip p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.node-tooltip::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background-color: rgba(15, 23, 42, 0.9);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Data flow visualization */
@@ -449,17 +707,9 @@
 }
 
 /* Animations */
-@keyframes float {
-  0% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(20px, -20px);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
-}
+
+
+
 
 /* Responsive styling */
 @media (max-width: 1024px) {

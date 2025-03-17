@@ -32,7 +32,7 @@ const SimpleScoringLandingPage = () => {
             maxWidth: '600px',
             margin: '0 auto'
           }}>
-            Transform your GTM strategy with intelligent account scoring
+            Build the foundation for your GTM strategy with intelligent account scoring
           </p>
           <button style={{
             marginTop: '30px',
