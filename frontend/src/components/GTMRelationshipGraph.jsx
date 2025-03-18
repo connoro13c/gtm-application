@@ -6,7 +6,7 @@ const GTMRelationshipGraph = () => {
   const [draggedNode, setDraggedNode] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragOffsetRef = useRef({ x: 0, y: 0 });
-  const [perspective, setPerspective] = useState(800); // 3D perspective value
+  const [perspective] = useState(800); // 3D perspective value
   
   // Node definitions with descriptions, colors and connection mappings based on GTM Strategy image
   const nodeDefinitions = [
@@ -130,6 +130,7 @@ const GTMRelationshipGraph = () => {
         frequencyX: 0.15 + Math.random() * 0.1, // Varied frequencies for natural motion
         frequencyY: 0.1 + Math.random() * 0.05, // Varied frequencies for natural motion
         frequencyZ: 0.12 + Math.random() * 0.08 // Z-axis frequency
+      };
     });
     setNodePositions(initialPositions);
   }, []);
@@ -313,6 +314,7 @@ const GTMRelationshipGraph = () => {
   
   const handleNodeHover = (nodeId) => {
     if (!isDragging) {
+      // Just highlight the node
       setActiveNode(nodeId);
     }
   };
@@ -396,7 +398,6 @@ const GTMRelationshipGraph = () => {
   const handleNodeClick = (nodeId) => {
     // Only handle click if we're not dragging
     if (!isDragging) {
-      const node = nodeDefinitions.find(n => n.id === nodeId);
       // Just highlight the node
       setActiveNode(nodeId);
     }

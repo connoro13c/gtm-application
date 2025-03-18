@@ -184,55 +184,18 @@ const ScoringLandingPage = () => {
   };
   
   // Handle category selection with persistence
+  // This function is unused - all buttons now use direct DOM manipulation
   const handleCategoryHover = (category) => {
     console.log('Hovering over category:', category);
-    if (!isPersistent) {
-      // Clear existing activeNode to ensure panel shows category info
-      setActiveNode(null);
-      setActiveCategory(category);
-      
-      // Apply consistent highlighting for all categories
-      setTimeout(() => {
-        // Handle node highlighting based on category
-        if (category === 'Scoring & Planning') {
-          document.querySelectorAll('#node1, #node2, #node4').forEach(node => {
-            if (node) {
-              node.style.transform = 'translate(-50%, -50%) scale(1.5)';
-              node.style.boxShadow = '0 0 15px white, 0 0 30px #89CFF0';
-              node.style.zIndex = '100';
-              node.style.backgroundColor = '#89CFF0';
-            }
-          });
-        } else if (category === 'Planning & Strategy') {
-          document.querySelectorAll('#node7, #node9').forEach(node => {
-            if (node) {
-              node.style.transform = 'translate(-50%, -50%) scale(1.5)';
-              node.style.boxShadow = '0 0 15px white, 0 0 30px #F08080';
-              node.style.zIndex = '100';
-              node.style.backgroundColor = '#F08080';
-            }
-          });
-        } else if (category === 'Execution & Operations') {
-          document.querySelectorAll('#node5, #node6, #node10').forEach(node => {
-            if (node) {
-              node.style.transform = 'translate(-50%, -50%) scale(1.5)';
-              node.style.boxShadow = '0 0 15px white, 0 0 30px #90EE90';
-              node.style.zIndex = '100';
-              node.style.backgroundColor = '#90EE90';
-            }
-          });
-        } else if (category === 'Strategy & Adjustments') {
-          document.querySelectorAll('#node3, #node8').forEach(node => {
-            if (node) {
-              node.style.transform = 'translate(-50%, -50%) scale(1.5)';
-              node.style.boxShadow = '0 0 15px white, 0 0 30px #FFD700';
-              node.style.zIndex = '100';
-              node.style.backgroundColor = '#FFD700';
-            }
-          });
-        }
-      }, 50);
-    }
+    // IMPORTANT: THIS FUNCTION IS NO LONGER USED BY ANY BUTTON
+    // Instead, each button has its own direct manipulation logic
+  };  
+  
+  // Handle mouse leaving category buttons
+  // This function is unused - all buttons now use direct DOM manipulation
+  const handleCategoryLeave = () => {
+    // IMPORTANT: THIS FUNCTION IS NO LONGER USED BY ANY BUTTON
+    // Instead, each button has its own direct manipulation logic
   };
   
   const handleCategoryClick = (category) => {
@@ -268,12 +231,20 @@ const ScoringLandingPage = () => {
     setActiveNode(nodeId);
   };
   
-  const handleBackgroundClick = () => {
-    // Reset on background click
-    if (isPersistent) {
+  const handleBackgroundClick = (e) => {
+    // Only reset if clicking directly on the background (not on nodes or other elements)
+    if (e.target.classList.contains('main-content') || e.target.classList.contains('visualization-container')) {
+      console.log('Background clicked, resetting state');
       setIsPersistent(false);
       setActiveCategory(null);
       setActiveNode(null);
+      
+      // Reset all nodes
+      document.querySelectorAll('.web-node').forEach(node => {
+        node.style.transform = 'translate(-50%, -50%)';
+        node.style.boxShadow = '';
+        node.style.zIndex = '10';
+      });
     }
   };
   
@@ -429,6 +400,41 @@ const ScoringLandingPage = () => {
         </motion.div>
         
         {/* Navigation buttons for GTM Strategy categories */}
+        {/* Adding a style block for button hover effects */}
+        <style>
+          {`
+            .category-btn {
+              outline: none !important;
+              position: relative !important;
+              z-index: 100 !important;
+              user-select: none !important;
+            }
+            .category-btn:hover {
+              transform: scale(1.05) !important;
+              box-shadow: 0 0 15px rgba(255,255,255,0.5) !important;
+            }
+            .gtm-navigation {
+              position: relative !important;
+              z-index: 100 !important;
+              width: 100% !important;
+              pointer-events: auto !important;
+            }
+            .content-container {
+              display: flex;
+              gap: 30px;
+              height: 100%;
+            }
+            @media (max-width: 1024px) {
+              .content-container {
+                flex-direction: column;
+                gap: 20px;
+              }
+              .node-details-panel {
+                max-width: 100% !important;
+              }
+            }
+          `}
+        </style>
         <motion.div 
           className="gtm-navigation"
           initial={{ opacity: 0, y: 20 }}
@@ -439,7 +445,9 @@ const ScoringLandingPage = () => {
             justifyContent: 'center',
             gap: '15px',
             margin: '20px 0 40px',
-            flexWrap: 'wrap'
+            flexWrap: 'wrap',
+            position: 'relative',
+            zIndex: 50  // Ensure buttons are above other elements
           }}
         >
           <button 
@@ -447,18 +455,50 @@ const ScoringLandingPage = () => {
               backgroundColor: activeCategory === 'Scoring & Planning' ? '#89CFF0' : 'rgba(137, 207, 240, 0.7)',
               border: 'none',
               borderRadius: '8px',
-              padding: '12px 24px',
+              padding: '16px 28px', /* Increased padding for larger hit area */
               color: '#333',
               fontWeight: 'bold',
               cursor: 'pointer',
               boxShadow: activeCategory === 'Scoring & Planning' ? '0 0 15px #89CFF0' : '0 4px 8px rgba(0,0,0,0.2)',
               transition: 'all 0.3s ease',
-              transform: activeCategory === 'Scoring & Planning' ? 'scale(1.05)' : 'scale(1)'
+              transform: activeCategory === 'Scoring & Planning' ? 'scale(1.05)' : 'scale(1)',
+              position: 'relative', /* Ensure the button has proper positioning */
+              zIndex: 55, /* High z-index to prevent hover issues */
+              pointerEvents: 'auto', /* Explicitly enable pointer events */
+              margin: '5px' /* Add margin to prevent buttons from being too close */
             }}
             onClick={() => handleCategoryClick('Scoring & Planning')}
-            onMouseEnter={() => handleCategoryHover('Scoring & Planning')}
-            onMouseLeave={() => !isPersistent && setActiveCategory(null)}
-            className="scoring-planning-btn"
+            onMouseEnter={() => {
+              console.log('Force highlighting Scoring & Planning nodes');
+              console.log('Looking for nodes: node1, node2, node4');
+              
+              // Always set this category as active and persistent
+              setActiveNode(null);
+              setActiveCategory('Scoring & Planning');
+              setIsPersistent(true);
+              
+              // Reset all nodes first
+              document.querySelectorAll('.web-node').forEach(node => {
+                console.log('Resetting node:', node.id);
+                node.style.transform = 'translate(-50%, -50%)';
+                node.style.boxShadow = '';
+                node.style.zIndex = '10';
+              });
+              
+              // Force highlight on all Scoring & Planning nodes
+              document.querySelectorAll('#node1, #node2, #node4').forEach(node => {
+                console.log('Highlighting node:', node.id);
+                node.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                node.style.boxShadow = '0 0 15px white, 0 0 30px #89CFF0';
+                node.style.zIndex = '100';
+                node.style.backgroundColor = '#89CFF0';
+              });
+            }}
+            onMouseLeave={() => {
+              // Do nothing on mouse leave to maintain persistence
+              // The state will only change when another category is hovered
+            }}
+            className="scoring-planning-btn category-btn"
           >
             Scoring & Planning
           </button>
@@ -467,18 +507,50 @@ const ScoringLandingPage = () => {
               backgroundColor: activeCategory === 'Planning & Strategy' ? '#F08080' : 'rgba(240, 128, 128, 0.7)',
               border: 'none',
               borderRadius: '8px',
-              padding: '12px 24px',
+              padding: '16px 28px', /* Increased padding for larger hit area */
               color: '#333',
               fontWeight: 'bold',
               cursor: 'pointer',
               boxShadow: activeCategory === 'Planning & Strategy' ? '0 0 15px #F08080' : '0 4px 8px rgba(0,0,0,0.2)',
               transition: 'all 0.3s ease',
-              transform: activeCategory === 'Planning & Strategy' ? 'scale(1.05)' : 'scale(1)'
+              transform: activeCategory === 'Planning & Strategy' ? 'scale(1.05)' : 'scale(1)',
+              position: 'relative', /* Ensure the button has proper positioning */
+              zIndex: 55, /* High z-index to prevent hover issues */
+              pointerEvents: 'auto', /* Explicitly enable pointer events */
+              margin: '5px' /* Add margin to prevent buttons from being too close */
             }}
             onClick={() => handleCategoryClick('Planning & Strategy')}
-            onMouseEnter={() => handleCategoryHover('Planning & Strategy')}
-            onMouseLeave={() => !isPersistent && setActiveCategory(null)}
-            className="planning-strategy-btn"
+            onMouseEnter={() => {
+              console.log('Force highlighting Planning & Strategy nodes');
+              console.log('Looking for nodes: node7, node9');
+
+              // Always set this category as active and persistent
+              setActiveNode(null);
+              setActiveCategory('Planning & Strategy');
+              setIsPersistent(true);
+              
+              // Reset all nodes first
+              document.querySelectorAll('.web-node').forEach(node => {
+                console.log('Resetting node:', node.id);
+                node.style.transform = 'translate(-50%, -50%)';
+                node.style.boxShadow = '';
+                node.style.zIndex = '10';
+              });
+              
+              // Force highlight on all Planning & Strategy nodes
+              document.querySelectorAll('#node7, #node9').forEach(node => {
+                console.log('Highlighting node:', node.id);
+                node.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                node.style.boxShadow = '0 0 15px white, 0 0 30px #F08080';
+                node.style.zIndex = '100';
+                node.style.backgroundColor = '#F08080';
+              });
+            }}
+            onMouseLeave={() => {
+              // Do nothing on mouse leave to maintain persistence
+              // The state will only change when another category is hovered
+            }}
+            className="planning-strategy-btn category-btn"
           >
             Planning & Strategy
           </button>
@@ -487,18 +559,50 @@ const ScoringLandingPage = () => {
               backgroundColor: activeCategory === 'Execution & Operations' ? '#90EE90' : 'rgba(144, 238, 144, 0.7)',
               border: 'none',
               borderRadius: '8px',
-              padding: '12px 24px',
+              padding: '16px 28px', /* Increased padding for larger hit area */
               color: '#333',
               fontWeight: 'bold',
               cursor: 'pointer',
               boxShadow: activeCategory === 'Execution & Operations' ? '0 0 15px #90EE90' : '0 4px 8px rgba(0,0,0,0.2)',
               transition: 'all 0.3s ease',
-              transform: activeCategory === 'Execution & Operations' ? 'scale(1.05)' : 'scale(1)'
+              transform: activeCategory === 'Execution & Operations' ? 'scale(1.05)' : 'scale(1)',
+              position: 'relative', /* Ensure the button has proper positioning */
+              zIndex: 55, /* High z-index to prevent hover issues */
+              pointerEvents: 'auto', /* Explicitly enable pointer events */
+              margin: '5px' /* Add margin to prevent buttons from being too close */
             }}
             onClick={() => handleCategoryClick('Execution & Operations')}
-            onMouseEnter={() => handleCategoryHover('Execution & Operations')}
-            onMouseLeave={() => !isPersistent && setActiveCategory(null)}
-            className="execution-operations-btn"
+            onMouseEnter={() => {
+              console.log('Force highlighting Execution & Operations nodes');
+              console.log('Looking for nodes: node5, node6, node10');
+
+              // Always set this category as active and persistent
+              setActiveNode(null);
+              setActiveCategory('Execution & Operations');
+              setIsPersistent(true);
+              
+              // Reset all nodes first
+              document.querySelectorAll('.web-node').forEach(node => {
+                console.log('Resetting node:', node.id);
+                node.style.transform = 'translate(-50%, -50%)';
+                node.style.boxShadow = '';
+                node.style.zIndex = '10';
+              });
+              
+              // Force highlight on all Execution & Operations nodes
+              document.querySelectorAll('#node5, #node6, #node10').forEach(node => {
+                console.log('Highlighting node:', node.id);
+                node.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                node.style.boxShadow = '0 0 15px white, 0 0 30px #90EE90';
+                node.style.zIndex = '100';
+                node.style.backgroundColor = '#90EE90';
+              });
+            }}
+            onMouseLeave={() => {
+              // Do nothing on mouse leave to maintain persistence
+              // The state will only change when another category is hovered
+            }}
+            className="execution-operations-btn category-btn"
           >
             Execution & Operations
           </button>
@@ -507,26 +611,58 @@ const ScoringLandingPage = () => {
               backgroundColor: activeCategory === 'Strategy & Adjustments' ? '#FFD700' : 'rgba(255, 215, 0, 0.7)',
               border: 'none',
               borderRadius: '8px',
-              padding: '12px 24px',
+              padding: '16px 28px', /* Increased padding for larger hit area */
               color: '#333',
               fontWeight: 'bold',
               cursor: 'pointer',
               boxShadow: activeCategory === 'Strategy & Adjustments' ? '0 0 15px #FFD700' : '0 4px 8px rgba(0,0,0,0.2)',
               transition: 'all 0.3s ease',
-              transform: activeCategory === 'Strategy & Adjustments' ? 'scale(1.05)' : 'scale(1)'
+              transform: activeCategory === 'Strategy & Adjustments' ? 'scale(1.05)' : 'scale(1)',
+              position: 'relative', /* Ensure the button has proper positioning */
+              zIndex: 55, /* High z-index to prevent hover issues */
+              pointerEvents: 'auto', /* Explicitly enable pointer events */
+              margin: '5px' /* Add margin to prevent buttons from being too close */
             }}
             onClick={() => handleCategoryClick('Strategy & Adjustments')}
-            onMouseEnter={() => handleCategoryHover('Strategy & Adjustments')}
-            onMouseLeave={() => !isPersistent && setActiveCategory(null)}
-            className="strategy-adjustments-btn"
+            onMouseEnter={() => {
+              console.log('Force highlighting Strategy & Adjustments nodes');
+              console.log('Looking for nodes: node3, node8');
+
+              // Always set this category as active and persistent
+              setActiveNode(null);
+              setActiveCategory('Strategy & Adjustments');
+              setIsPersistent(true);
+              
+              // Reset all nodes first
+              document.querySelectorAll('.web-node').forEach(node => {
+                console.log('Resetting node:', node.id);
+                node.style.transform = 'translate(-50%, -50%)';
+                node.style.boxShadow = '';
+                node.style.zIndex = '10';
+              });
+              
+              // Force highlight on all Strategy & Adjustments nodes
+              document.querySelectorAll('#node3, #node8').forEach(node => {
+                console.log('Highlighting node:', node.id);
+                node.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                node.style.boxShadow = '0 0 15px white, 0 0 30px #FFD700';
+                node.style.zIndex = '100';
+                node.style.backgroundColor = '#FFD700';
+              });
+            }}
+            onMouseLeave={() => {
+              // Do nothing on mouse leave to maintain persistence
+              // The state will only change when another category is hovered
+            }}
+            className="strategy-adjustments-btn category-btn"
           >
             Strategy & Adjustments
           </button>
         </motion.div>
         
         <div className="main-content" onClick={handleBackgroundClick}>
-          <div className="content-container" style={{ display: 'flex', gap: '30px', height: '100%' }}>
-            <div className="visualization-container" style={{ flex: '1.5' }}>
+          <div className="content-container" style={{ position: 'relative', zIndex: 40, width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '0 20px' }}>
+            <div className="visualization-container" style={{ flex: '1.5', minWidth: '0', overflow: 'hidden' }}>
               <Home activeCategory={activeCategory} activeNode={activeNode} />
             </div>
             
@@ -538,13 +674,18 @@ const ScoringLandingPage = () => {
                 transition={{ duration: 0.3 }}
                 style={{ 
                   flex: '1', 
+                  width: '400px',
+                  minWidth: '400px',
                   backgroundColor: 'rgba(30, 38, 55, 0.9)',
                   borderRadius: '16px',
                   padding: '24px',
                   boxShadow: '0 0 20px rgba(0, 0, 0, 0.3)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
-                  overflow: 'auto'
+                  overflow: 'auto',
+                  maxHeight: 'calc(100vh - 200px)',
+                  position: 'sticky',
+                  top: '20px'
                 }}
               >
                 {activeNode && (
@@ -614,14 +755,14 @@ const ScoringLandingPage = () => {
                     
                     {activeCategory === 'Execution & Operations' && (
                       <div style={{ 
-                        padding: '12px', 
-                        backgroundColor: 'rgba(144, 238, 144, 0.1)', 
+                        padding: '15px', 
+                        backgroundColor: 'rgba(144, 238, 144, 0.15)', 
                         borderRadius: '8px',
                         marginBottom: '20px',
                         borderLeft: '4px solid #90EE90'
                       }}>
-                        <p style={{ fontSize: '15px', color: '#FFF' }}>
-                          This section focuses on the day-to-day sales motions and deal management processes that drive revenue generation.
+                        <p style={{ fontSize: '15px', color: '#FFF', lineHeight: '1.4' }}>
+                          <strong>Day-to-Day Sales Motion & Deal Management</strong> — This section ensures that the sales team is executing against targets efficiently, with proper deal tracking and customer retention efforts.
                         </p>
                       </div>
                     )}
