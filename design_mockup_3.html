@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design 3: Immersive Experience</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, sans-serif;
+      background-color: #0D1117;
+      color: white;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    .dynamic-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .gradient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(15px);
+      opacity: 0.3;
+    }
+    
+    .orb-1 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(255, 75, 75, 0.6) 0%, rgba(255, 75, 75, 0) 70%);
+      top: -100px;
+      left: -100px;
+    }
+    
+    .orb-2 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(75, 123, 255, 0.6) 0%, rgba(75, 123, 255, 0) 70%);
+      bottom: -150px;
+      right: -100px;
+    }
+    
+    .orb-3 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(151, 71, 255, 0.6) 0%, rgba(151, 71, 255, 0) 70%);
+      top: 60%;
+      left: 15%;
+    }
+    
+    .orb-4 {
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(0, 196, 140, 0.6) 0%, rgba(0, 196, 140, 0) 70%);
+      top: 20%;
+      right: 15%;
+    }
+    
+    .grid-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(rgba(30, 38, 55, 0.2) 1px, transparent 1px), 
+        linear-gradient(90deg, rgba(30, 38, 55, 0.2) 1px, transparent 1px);
+      background-size: 30px 30px;
+      opacity: 0.5;
+      z-index: 1;
+    }
+    
+    /* Design 3 specific styles */
+    .immersive-layout {
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .viz-container {
+      flex: 1;
+      position: relative;
+    }
+    
+    .hero-section {
+      position: absolute;
+      top: 40px;
+      left: 40px;
+      z-index: 10;
+    }
+    
+    .hero-title {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      background: linear-gradient(90deg, #FF8A00, #FFC700);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .hero-subtitle {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 0;
+    }
+    
+    .visualization-scene {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+    
+    .web-container {
+      position: relative;
+      width: 600px;
+      height: 600px;
+    }
+    
+    svg.connections-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .web-node {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+      transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    
+    .web-node.active {
+      transform: translate(-50%, -50%) scale(1.5);
+      box-shadow: 0 0 20px white, 0 0 40px currentColor;
+      z-index: 20;
+    }
+    
+    .floating-panel {
+      position: absolute;
+      right: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 380px;
+      max-height: 80vh;
+      background: rgba(20, 25, 35, 0.85);
+      border-radius: 24px;
+      padding: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(15px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: auto;
+      z-index: 10;
+      transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    
+    .floating-panel h2 {
+      font-size: 24px;
+      margin-bottom: 16px;
+      color: #FFF;
+      border-bottom: 2px solid #89CFF0;
+      padding-bottom: 10px;
+    }
+    
+    .floating-panel p {
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .floating-panel h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: #FFF;
+    }
+    
+    .component-card {
+      padding: 16px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border-left: 4px solid #89CFF0;
+    }
+    
+    .component-card h4 {
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: #FFF;
+    }
+    
+    .component-card p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      margin: 0;
+    }
+    
+    .dock {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px 25px;
+      background: rgba(30, 35, 45, 0.9);
+      border-radius: 30px;
+      display: flex;
+      gap: 15px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+    }
+    
+    .dock-button {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      border: none;
+    }
+    
+    .dock-button::after {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+      border-radius: 50%;
+      background: transparent;
+      border: 2px solid transparent;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .dock-button.active::after {
+      opacity: 1;
+      border-color: currentColor;
+    }
+    
+    .legend-tooltip {
+      position: absolute;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20, 25, 35, 0.9);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      max-width: 800px;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      z-index: 90;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      transition: all 0.2s ease;
+    }
+    
+    .legend-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+    
+    .legend-text {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="dynamic-background">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+    <div class="gradient-orb orb-4"></div>
+    <div class="grid-overlay"></div>
+  </div>
+  
+  <div class="immersive-layout">
+    <div class="viz-container">
+      <div class="hero-section">
+        <h1 class="hero-title">Account Scoring</h1>
+        <p class="hero-subtitle">Transform your GTM strategy with intelligent account scoring</p>
+      </div>
+      
+      <div class="visualization-scene">
+        <div class="web-container">
+          <svg class="connections-svg">
+            <line x1="300" y1="150" x2="450" y2="150" stroke="rgba(255, 255, 255, 0.8)" stroke-width="2"></line>
+            <line x1="300" y1="150" x2="150" y2="300" stroke="rgba(255, 255, 255, 0.8)" stroke-width="2"></line>
+            <line x1="450" y1="150" x2="450" y2="300" stroke="rgba(255, 255, 255, 0.8)" stroke-width="2"></line>
+            <line x1="300" y1="450" x2="450" y2="300" stroke="rgba(255, 255, 255, 0.8)" stroke-width="2"></line>
+            <line x1="300" y1="450" x2="150" y2="300" stroke="rgba(255, 255, 255, 0.8)" stroke-width="2"></line>
+          </svg>
+          <div class="web-node active" style="background-color: #89CFF0; left: 300px; top: 150px;"></div>
+          <div class="web-node active" style="background-color: #89CFF0; left: 450px; top: 150px;"></div>
+          <div class="web-node" style="background-color: #F08080; left: 450px; top: 300px;"></div>
+          <div class="web-node active" style="background-color: #89CFF0; left: 300px; top: 450px;"></div>
+          <div class="web-node" style="background-color: #FFD700; left: 150px; top: 300px;"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="floating-panel">
+      <h2>Scoring & Planning</h2>
+      <p>ud83dudd35 Identifying & Prioritizing Accounts u2014 This section ensures that the right accounts are identified, scored, and assigned to the appropriate segments and territories.</p>
+      
+      <h3>Components</h3>
+      <div class="component-card">
+        <h4>Account Scoring</h4>
+        <p>Foundation of GTM strategy, determining propensity to buy scores for accounts.</p>
+      </div>
+      
+      <div class="component-card">
+        <h4>Account Segmentation</h4>
+        <p>After scoring, accounts are grouped to ensure optimal messaging and targeting.</p>
+      </div>
+      
+      <div class="component-card">
+        <h4>Territory Planning</h4>
+        <p>Defines sales rep workload and territory assignments based on scored accounts.</p>
+      </div>
+    </div>
+    
+    <div class="dock">
+      <button class="dock-button active" style="background-color: #89CFF0;"></button>
+      <button class="dock-button" style="background-color: #F08080;"></button>
+      <button class="dock-button" style="background-color: #90EE90;"></button>
+      <button class="dock-button" style="background-color: #FFD700;"></button>
+    </div>
+    
+    <div class="legend-tooltip">
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #89CFF0;"></div>
+        <div class="legend-text">Account Scoring</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #89CFF0;"></div>
+        <div class="legend-text">Account Segmentation</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #89CFF0;"></div>
+        <div class="legend-text">Territory Planning</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #F08080;"></div>
+        <div class="legend-text">Quota Setting</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #F08080;"></div>
+        <div class="legend-text">Compensation Planning</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #90EE90;"></div>
+        <div class="legend-text">Sales Execution</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

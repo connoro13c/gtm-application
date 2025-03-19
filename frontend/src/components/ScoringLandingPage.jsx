@@ -393,9 +393,9 @@ const ScoringLandingPage = () => {
             transition={{ delay: 0.2, type: "spring" }}
           >
             <h1 className="hero-title" style={{color: 'orange'}}>
-              <span>Account Scoring - Debug Mode</span>
+              <span>The GTM App</span>
             </h1>
-            <p className="hero-subtitle">Transform your GTM strategy with intelligent account scoring</p>
+            <p className="hero-subtitle">Transform your GTM with intelligent execution</p>
           </motion.div>
         </motion.div>
         
@@ -662,7 +662,7 @@ const ScoringLandingPage = () => {
         
         <div className="main-content" onClick={handleBackgroundClick}>
           <div className="content-container" style={{ position: 'relative', zIndex: 40, width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '0 20px' }}>
-            <div className="visualization-container" style={{ flex: '1.5', minWidth: '0', overflow: 'hidden' }}>
+            <div className="visualization-container" style={{ flex: '1.5', minWidth: '0', minHeight: '750px', overflow: 'visible' }}>
               <Home activeCategory={activeCategory} activeNode={activeNode} />
             </div>
             
@@ -683,7 +683,7 @@ const ScoringLandingPage = () => {
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   overflow: 'auto',
-                  maxHeight: 'calc(100vh - 200px)',
+                  maxHeight: '600px',
                   position: 'sticky',
                   top: '20px'
                 }}
