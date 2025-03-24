@@ -535,7 +535,7 @@ const ScoringLandingPage = () => {
             onClick={() => {
               handleCategoryClick('Scoring & Planning');
               // Navigate to enhanced scoring page
-              window.location.href = '/basic-propensity';
+              window.location.href = '/enhanced-combined';
             }}
             onMouseEnter={() => {
               console.log('Force highlighting Scoring & Planning nodes');
