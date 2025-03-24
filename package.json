@@ -15,10 +15,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "storybook": "./kill-storybook-simple.sh && storybook dev -p 6006 --no-open",
-    "build-storybook": "storybook build",
     "kill-port": "./kill-port.sh",
-    "kill-storybook": "./kill-storybook.sh",
     "start": "npm run kill-port && node server.js",
     "dev": "npm run kill-port && cd frontend && npm run dev"
   },
