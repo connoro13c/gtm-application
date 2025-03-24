@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GTM Application</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #121212;
+      color: white;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: #f4f4f4;
+    }
+    p {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+      color: #ccc;
+    }
+    .button {
+      display: inline-block;
+      background-color: #4A90E2;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    .button:hover {
+      background-color: #3A7BC8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>GTM Application</h1>
+    <p>Welcome to the GTM Application. This page serves as a fallback when routing is not working correctly.</p>
+    <a href="/" class="button">Go to Home</a>
+  </div>
+  <script>
+    // Basic script to detect browser
+    document.addEventListener('DOMContentLoaded', function() {
+      const browserInfo = document.createElement('p');
+      const userAgent = navigator.userAgent;
+      let browserName;
+      
+      if (userAgent.match(/firefox|fxios/i)) {
+        browserName = 'Firefox';
+      } else if (userAgent.match(/chrome|chromium|crios/i)) {
+        browserName = 'Chrome';
+      } else if (userAgent.match(/safari/i)) {
+        browserName = 'Safari';
+      } else if (userAgent.match(/opr\//i)) {
+        browserName = 'Opera';
+      } else if (userAgent.match(/edg/i)) {
+        browserName = 'Edge';
+      } else {
+        browserName = 'Unknown';
+      }
+      
+      browserInfo.textContent = `You are using ${browserName} browser.`;
+      document.querySelector('.container').appendChild(browserInfo);
+    });
+  </script>
+</body>
+</html>

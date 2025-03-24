@@ -102,6 +102,8 @@
   position: absolute;
   border-radius: 50%;
   filter: blur(var(--blur-amount));
+  -webkit-filter: blur(var(--blur-amount));
+  -moz-filter: blur(var(--blur-amount));
   opacity: 0.3;
 }
 

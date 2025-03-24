@@ -403,6 +403,58 @@ const ScoringLandingPage = () => {
         {/* Adding a style block for button hover effects */}
         <style>
           {`
+          /* Base styles for Firefox compatibility */
+          svg.connections-svg {
+            overflow: visible;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+          }
+          
+          .web-node {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            z-index: 10;
+            box-sizing: border-box;
+          }
+
+          .btn-primary:hover {
+            background-color: #D93B2D; /* 10% darker than Vermillion-7 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(243, 78, 63, 0.2);
+          }
+          .btn-secondary:hover {
+            background-color: #2C2CD1; /* 10% darker than Blue-5 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(55, 55, 242, 0.2);
+          }
+          .btn-outline:hover {
+            background-color: rgba(120, 52, 187, 0.05);
+            border-color: #7834BB;
+            color: #7834BB;
+          }
+          
+          /* Firefox-specific fixes */
+          @-moz-document url-prefix() {
+            .web-container {
+              position: relative;
+              width: 100%;
+              height: 500px;
+              overflow: visible;
+            }
+          }
+          `}
+        </style>
+        <style>
+          {`
             .category-btn {
               outline: none !important;
               position: relative !important;
@@ -431,6 +483,19 @@ const ScoringLandingPage = () => {
               }
               .node-details-panel {
                 max-width: 100% !important;
+                width: auto !important;
+                min-width: auto !important;
+              }
+              /* Firefox-specific fixes */
+              @-moz-document url-prefix() {
+                .web-node {
+                  position: absolute !important;
+                  transform: translate(-50%, -50%) !important;
+                }
+                .web-container, .connections-svg {
+                  width: 100% !important;
+                  height: 100% !important;
+                }
               }
             }
           `}
@@ -467,7 +532,11 @@ const ScoringLandingPage = () => {
               pointerEvents: 'auto', /* Explicitly enable pointer events */
               margin: '5px' /* Add margin to prevent buttons from being too close */
             }}
-            onClick={() => handleCategoryClick('Scoring & Planning')}
+            onClick={() => {
+              handleCategoryClick('Scoring & Planning');
+              // Navigate to enhanced scoring page
+              window.location.href = '/basic-propensity';
+            }}
             onMouseEnter={() => {
               console.log('Force highlighting Scoring & Planning nodes');
               console.log('Looking for nodes: node1, node2, node4');
@@ -498,7 +567,7 @@ const ScoringLandingPage = () => {
               // Do nothing on mouse leave to maintain persistence
               // The state will only change when another category is hovered
             }}
-            className="scoring-planning-btn category-btn"
+            className="scoring-planning-btn category-btn btn-primary"
           >
             Scoring & Planning
           </button>
@@ -550,7 +619,7 @@ const ScoringLandingPage = () => {
               // Do nothing on mouse leave to maintain persistence
               // The state will only change when another category is hovered
             }}
-            className="planning-strategy-btn category-btn"
+            className="planning-strategy-btn category-btn btn-secondary"
           >
             Planning & Strategy
           </button>
@@ -602,7 +671,7 @@ const ScoringLandingPage = () => {
               // Do nothing on mouse leave to maintain persistence
               // The state will only change when another category is hovered
             }}
-            className="execution-operations-btn category-btn"
+            className="execution-operations-btn category-btn btn-outline"
           >
             Execution & Operations
           </button>
@@ -654,7 +723,7 @@ const ScoringLandingPage = () => {
               // Do nothing on mouse leave to maintain persistence
               // The state will only change when another category is hovered
             }}
-            className="strategy-adjustments-btn category-btn"
+            className="strategy-adjustments-btn category-btn btn-primary"
           >
             Strategy & Adjustments
           </button>

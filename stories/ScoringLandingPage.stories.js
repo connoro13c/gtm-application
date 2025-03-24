@@ -1,4 +1,3 @@
-import React from 'react';
 import SimpleScoringLandingPage from './SimpleScoringLandingPage';
 
 export default {

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ScoringLandingPage = () => {
+  const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [showPulse, setShowPulse] = useState(false);
@@ -317,6 +319,34 @@ const ScoringLandingPage = () => {
       <DynamicBackground />
       {showPulse && <div className="initial-pulse" />}
       <CursorFollower />
+      
+      {/* Back button */}
+      <motion.button 
+        className="back-button"
+        onClick={() => navigate('/')}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        whileHover={{ scale: 1.1 }}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          left: '20px',
+          zIndex: 100,
+          background: 'rgba(0,0,0,0.3)',
+          color: 'white',
+          border: '1px solid rgba(255,255,255,0.2)',
+          borderRadius: '50px',
+          padding: '10px 20px',
+          cursor: 'pointer',
+          backdropFilter: 'blur(10px)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}
+      >
+        <span style={{ fontSize: '20px' }}>&larr;</span> Back to GTM App
+      </motion.button>
       
       <div className="page-content">
         <motion.div 

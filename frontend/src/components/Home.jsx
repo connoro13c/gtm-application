@@ -206,11 +206,22 @@ const Home = ({ activeCategory }) => {
     // Prevent default to avoid text selection during drag
     e.preventDefault();
     
-    // Calculate offset between mouse position and node center
+    // Calculate offset between mouse/touch position and node center
     const nodePos = nodePositions[nodeId];
+    
+    // Handle both mouse and touch events
+    let clientX, clientY;
+    if (e.type === 'touchstart') {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    
     dragOffsetRef.current = {
-      x: e.clientX - nodePos.x,
-      y: e.clientY - nodePos.y
+      x: clientX - nodePos.x,
+      y: clientY - nodePos.y
     };
     
     setDraggedNode(nodeId);
@@ -221,12 +232,22 @@ const Home = ({ activeCategory }) => {
     if (isDragging && draggedNode) {
       e.preventDefault();
       
+      // Get the coordinates with Firefox compatibility
+      let clientX, clientY;
+      if (e.type === 'touchmove') {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      
       const updatedPositions = {...nodePositions};
       const pos = updatedPositions[draggedNode];
       
       // Update the node's position based on mouse movement while preserving the offset
-      pos.x = e.clientX - dragOffsetRef.current.x;
-      pos.y = e.clientY - dragOffsetRef.current.y;
+      pos.x = clientX - dragOffsetRef.current.x;
+      pos.y = clientY - dragOffsetRef.current.y;
       
       // Also update the centerX and centerY to make this the new oscillation center
       pos.centerX = pos.x;
@@ -259,6 +280,9 @@ const Home = ({ activeCategory }) => {
     // Add global event listeners
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+    // Add touch events for mobile/Firefox compatibility
+    document.addEventListener('touchmove', handleMouseMove, { passive: false });
+    document.addEventListener('touchend', handleMouseUp);
     
     // Add click handler for clearing persistent node when clicking outside
     const handleDocumentClick = (e) => {
@@ -275,6 +299,8 @@ const Home = ({ activeCategory }) => {
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleMouseMove);
+      document.removeEventListener('touchend', handleMouseUp);
       document.removeEventListener('click', handleDocumentClick);
     };
   }, [isDragging, draggedNode]);
@@ -287,8 +313,13 @@ const Home = ({ activeCategory }) => {
         setPersistentNode(null);
       } else {
         setPersistentNode(nodeId);
+        // Get the node definition
         const node = nodeDefinitions.find(n => n.id === nodeId);
-        alert(`Navigating to ${node.title} section`);
+        
+        // Use console log instead of alert for debugging
+        console.log(`Node selected: ${node.title}`);
+        
+        // Don't trigger navigation directly - this will be handled by parent component
       }
     }
   };
@@ -373,6 +404,7 @@ const Home = ({ activeCategory }) => {
               }}
               onClick={() => handleNodeClick(node.id)}
               onMouseDown={(e) => handleNodeMouseDown(e, node.id)}
+              onTouchStart={(e) => handleNodeMouseDown(e, node.id)}
               onMouseEnter={() => handleNodeHover(node.id)}
               onMouseLeave={() => !isDragging && setActiveNode(null)} // Only clear temporary hover
             ></div>
@@ -387,6 +419,7 @@ const Home = ({ activeCategory }) => {
               className={`legend-item ${activeNode === node.id || persistentNode === node.id || highlightedNodes.includes(node.id) ? 'active' : ''}`}
               onClick={() => handleNodeClick(node.id)}
               onMouseDown={(e) => handleNodeMouseDown(e, node.id)}
+              onTouchStart={(e) => handleNodeMouseDown(e, node.id)}
               onMouseEnter={() => handleNodeHover(node.id)}
               onMouseLeave={() => !isDragging && setActiveNode(null)}
             >

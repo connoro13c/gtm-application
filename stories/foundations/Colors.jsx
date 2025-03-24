@@ -1,4 +1,4 @@
-import React from 'react';
+
 import './colors.css';
 
 export const ColorPalette = () => (
