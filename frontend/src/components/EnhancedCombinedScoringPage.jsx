@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+// import { motion } from 'framer-motion'; - removed to fix flickering
 import './EnhancedCombinedScoringPage.css';
 
 const EnhancedCombinedScoringPage = () => {
@@ -16,22 +16,10 @@ const EnhancedCombinedScoringPage = () => {
   
   // Handle tab change with proper animations
   const handleTabChange = (tabId) => {
-    if (isAnimating) return; // Prevent changing tabs during animation
+    if (isAnimating || tabId === activeTab) return; // Prevent unnecessary changes
     
-    setIsAnimating(true);
-    
-    // Create a micro-animation sequence
-    const sequence = async () => {
-      // 1. Fade out current content
-      setIsAnimating(true);
-      
-      // 2. Change the active tab
-      setActiveTab(tabId);
-      
-      // 3. Animation will complete via the onAnimationComplete handler
-    };
-    
-    sequence();
+    // Simply change the active tab - animations handled by motion components
+    setActiveTab(tabId);
   };
 
   const tabs = [
@@ -97,23 +85,15 @@ const EnhancedCombinedScoringPage = () => {
       
       <div className="page-content">
         {/* Back Button */}
-        <motion.button 
+        <button 
           className="back-button"
           onClick={() => window.location.href = '/'}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
         >
           <span>←</span> Back to GTM App
-        </motion.button>
+        </button>
         
         {/* Compare View Toggle */}
-        <motion.div 
-          className="compare-view-toggle"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-        >
+        <div className="compare-view-toggle">
           <button 
             className="compare-button"
             onClick={() => alert('Compare view functionality would go here')}
@@ -127,30 +107,21 @@ const EnhancedCombinedScoringPage = () => {
             </svg>
             Compare Approaches
           </button>
-        </motion.div>
+        </div>
         
         {/* Hero Section */}
         <div className="hero-section">
-          <motion.div 
-            className="title-container"
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, type: "spring" }}
-          >
+          <div className="title-container">
             <h1 className="hero-title">Account Scoring</h1>
             <p className="hero-subtitle">
               Transforming GTM strategy with intelligent account scoring
             </p>
-          </motion.div>
+          </div>
           
           {/* Start Journey Button */}
-          <motion.button
-            className="start-journey-button"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
+          <button className="start-journey-button">
             Start Your Journey
-          </motion.button>
+          </button>
         </div>
         
         {/* Top Section - Tab selector */}
@@ -164,14 +135,9 @@ const EnhancedCombinedScoringPage = () => {
               
               return (
                 <React.Fragment key={tab.id}>
-                  <motion.div 
+                  <div 
                     className={`stepper-node ${isActive ? 'active' : ''} ${isPassed ? 'passed' : ''}`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleTabChange(tab.id)}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 * index, duration: 0.5 }}
                   >
 
                     <div 
@@ -209,20 +175,15 @@ const EnhancedCombinedScoringPage = () => {
                       <div className="stepper-label">{tab.label}</div>
                       <div className="stepper-description">{tab.description}</div>
                     </div>
-                  </motion.div>
+                  </div>
                   
                   {!isLast && (
-                    <motion.div 
-                      className={`stepper-connector ${isPassed ? 'active' : ''}`}
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ delay: 0.1 * index + 0.2, duration: 0.5 }}
-                    >
+                    <div className={`stepper-connector ${isPassed ? 'active' : ''}`}>
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={isPassed ? tab.color : 'rgba(255,255,255,0.2)'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                         <polyline points="12 5 19 12 12 19"></polyline>
                       </svg>
-                    </motion.div>
+                    </div>
                   )}
                 </React.Fragment>
               );
@@ -232,15 +193,8 @@ const EnhancedCombinedScoringPage = () => {
         
         {/* Unified Content Area */}
         <div className="unified-container" style={{ backgroundColor: 'transparent', padding: 0 }}>
-          <motion.div 
+          <div 
             className="unified-card"
-            key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5, type: 'spring', stiffness: 150 }}
-            onAnimationStart={() => setIsAnimating(true)}
-            onAnimationComplete={() => setIsAnimating(false)}
             style={{ 
               background: 'rgba(248, 250, 252, 0.95)', // Off-white background
               boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
@@ -458,32 +412,28 @@ scheduleJob({
               
               {/* Action Buttons - Based on PRD Flows */}
               <div className="action-buttons">
-                <motion.button 
+                <button 
                   className="primary-button"
                   style={{
                     background: tabs.find(t => t.id === activeTab)?.gradient
                   }}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
                 >
                   {activeTab === 'foundation' ? 'Create Scoring Scenario' : 
                    activeTab === 'optimization' ? 'Run Optimization Model' :
                    activeTab === 'intelligence' ? 'Configure ML Parameters' :
                    'Set Up Automated Workflow'}
-                </motion.button>
-                <motion.button 
+                </button>
+                <button 
                   className="secondary-button"
-                  whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.05)' }}
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
                 >
                   {activeTab === 'foundation' ? 'View Scenario Gallery' : 
                    activeTab === 'optimization' ? 'Compare Scenarios' :
                    activeTab === 'intelligence' ? 'Import Data Sources' :
                    'Schedule Updates'}
-                </motion.button>
+                </button>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 

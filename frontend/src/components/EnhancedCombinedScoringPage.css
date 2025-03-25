@@ -312,8 +312,12 @@ html, body {
   transition: all 0.3s ease;
 }
 
+.stepper-node {
+  cursor: pointer;
+}
+
 .stepper-node.active .stepper-icon {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .stepper-content {
@@ -410,7 +414,7 @@ html, body {
 }
 
 .unified-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(0);
 }
 
 /* Header Section */
@@ -820,15 +824,10 @@ html, body {
 .col-11 { width: 91.66%; }
 .col-12 { width: 100%; }
 
-/* Micro-animations for transitions */
+/* Micro-animations for transitions - simplified */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-10px); }
 }
 
 @keyframes pulse {
