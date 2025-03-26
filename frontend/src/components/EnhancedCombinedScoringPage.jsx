@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 // import { motion } from 'framer-motion'; - removed to fix flickering
 import './EnhancedCombinedScoringPage.css';
+import FoundationScenarioWizard from './FoundationScenarioWizard';
 
 const EnhancedCombinedScoringPage = () => {
   const [activeTab, setActiveTab] = useState('foundation');
   const [showPulse, setShowPulse] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showScenarioWizard, setShowScenarioWizard] = useState(false);
   
   // Create pulse effect on page load
   useEffect(() => {
@@ -204,7 +206,7 @@ const EnhancedCombinedScoringPage = () => {
             }}
           >
             {/* Modern Header with Improved Icon */}
-            <div className="unified-header" style={{ background: tabs.find(t => t.id === activeTab)?.gradient, borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
+            <div className="unified-header" style={{ background: 'white', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
               <div className="header-content">
                 <div className="header-icon-wrapper">
                   <div className="header-icon">
@@ -417,6 +419,15 @@ scheduleJob({
                   style={{
                     background: tabs.find(t => t.id === activeTab)?.gradient
                   }}
+                  onClick={() => {
+                    if (activeTab === 'foundation') {
+                      console.log('Opening scenario wizard');
+                      setShowScenarioWizard(true);
+                      console.log('showScenarioWizard set to true');
+                    } else {
+                      alert(`Action for ${activeTab} would happen here`);
+                    }
+                  }}
                 >
                   {activeTab === 'foundation' ? 'Create Scoring Scenario' : 
                    activeTab === 'optimization' ? 'Run Optimization Model' :
@@ -425,6 +436,7 @@ scheduleJob({
                 </button>
                 <button 
                   className="secondary-button"
+                  onClick={() => alert(`Secondary action for ${activeTab} would happen here`)}
                 >
                   {activeTab === 'foundation' ? 'View Scenario Gallery' : 
                    activeTab === 'optimization' ? 'Compare Scenarios' :
@@ -439,6 +451,13 @@ scheduleJob({
 
       {/* Full page background overlay */}
       <div className="full-page-overlay"></div>
+      
+      {/* Simple Foundation Scoring Scenario Wizard */}
+      {showScenarioWizard && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 9999, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <FoundationScenarioWizard onClose={() => setShowScenarioWizard(false)} />
+        </div>
+      )}
     </div>
   );
 };

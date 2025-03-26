@@ -1,181 +1,200 @@
-# Backend Integration & Data Workflow Technical Guide
+# Backend Integration Technical Guide
 
-This technical guide provides detailed, step-by-step instructions explicitly designed to architect, implement, and integrate backend components, ensuring seamless data loading, mapping, tagging, transformation, merging, and user-state management functionalities.
+## Database Schema for Scoring Scenarios
 
-## 🛠 Step 1: Infrastructure Setup
+### Overview
 
-### Docker & Containers (Explicit Instructions)
+This document outlines the database schema and API endpoints needed to support the account scoring functionality. The system stores and manages scoring scenarios, uploads account data, and calculates propensity-to-buy scores based on user-defined criteria.
 
-#### Setup Docker Environment:
+## Database Schema
 
-Install Docker Desktop (https://docs.docker.com/get-docker/).
+### Scoring Scenarios
 
-#### Docker Compose:
-Create a docker-compose.yml file explicitly defining multiple services:
-
-```yaml
-version: '3.8'
-services:
-  backend:
-    build: ./backend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - db
-  db:
-    image: postgres:14
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: revops_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - dbdata:/var/lib/postgresql/data
-  ml_service:
-    build: ./ml_service
-    ports:
-      - "5000:5000"
-volumes:
-  dbdata:
+```sql
+CREATE TABLE scoring_scenarios (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'processing', 'completed', 'failed'
+  created_by VARCHAR(255),
+  description TEXT,
+  is_archived BOOLEAN DEFAULT FALSE
+);
 ```
 
-#### Run Containers:
+### Account Lists
 
-```bash
-docker-compose up -d
+```sql
+CREATE TABLE account_lists (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  scenario_id UUID REFERENCES scoring_scenarios(id) ON DELETE CASCADE,
+  original_filename VARCHAR(255) NOT NULL,
+  storage_path VARCHAR(255) NOT NULL, -- S3 or local storage path
+  uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  row_count INTEGER,
+  id_column_name VARCHAR(100) NOT NULL,
+  name_column_name VARCHAR(100) NOT NULL
+);
 ```
 
-## 📦 Step 2: Database Schema Setup (PostgreSQL)
+### Scoring Criteria
 
-Execute the provided schema explicitly in your PostgreSQL container:
-
-```bash
-docker-compose exec db psql -U user -d revops_db
+```sql
+CREATE TABLE scoring_criteria (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  scenario_id UUID REFERENCES scoring_scenarios(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  weight INTEGER DEFAULT 1, -- Importance multiplier for this criterion
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 ```
 
-Run SQL scripts explicitly defined in the previous schema section.
+### Account Scores
 
-## 🌐 Step 3: Backend API Setup (Node.js + Express)
-
-### Initialize Node.js Project:
-
-```bash
-npm init -y
-npm install express cors dotenv jsonwebtoken typeorm pg
+```sql
+CREATE TABLE account_scores (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  scenario_id UUID REFERENCES scoring_scenarios(id) ON DELETE CASCADE,
+  account_id VARCHAR(255) NOT NULL, -- Extracted from the uploaded file
+  account_name VARCHAR(255) NOT NULL, -- Extracted from the uploaded file
+  total_score INTEGER, -- 0-100 final score
+  calculated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE (scenario_id, account_id)
+);
 ```
 
-### Explicitly Define REST API Endpoints:
+### Criterion Scores
 
-Create endpoints (routes/session.js, routes/dataset.js):
-
-```javascript
-app.post('/api/session-state/save', (req, res) => {
-  // Save wizard state to wizard_session_states
-});
-
-app.get('/api/session-state/load', (req, res) => {
-  // Retrieve wizard state from wizard_session_states
-});
-
-app.post('/api/datasets/save', (req, res) => {
-  // Save final dataset to data_snapshots
-});
+```sql
+CREATE TABLE criterion_scores (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  account_score_id UUID REFERENCES account_scores(id) ON DELETE CASCADE,
+  criterion_id UUID REFERENCES scoring_criteria(id) ON DELETE CASCADE,
+  score INTEGER NOT NULL, -- 0-10 score for this specific criterion
+  notes TEXT,
+  UNIQUE (account_score_id, criterion_id)
+);
 ```
 
-## 🔑 Step 4: Security & Authentication (JWT & SSL)
+## API Endpoints
 
-### JWT Authentication:
-Explicitly use JWT (jsonwebtoken) to secure API endpoints.
+### Scoring Scenarios
 
-### SSL/TLS Encryption:
-Set up Nginx reverse proxy explicitly with Let's Encrypt for secure data transmission.
+- `GET /api/scoring-scenarios` - List all scenarios
+- `GET /api/scoring-scenarios/:id` - Get scenario details
+- `POST /api/scoring-scenarios` - Create new scenario
+- `PUT /api/scoring-scenarios/:id` - Update scenario
+- `DELETE /api/scoring-scenarios/:id` - Archive scenario (not delete)
 
-## 📥 Step 5: Data Integration Workflow (Frontend ↔ Backend)
+### Account Lists
 
-Explicitly document state handling (Zustand, React Context API).
+- `POST /api/scoring-scenarios/:id/upload` - Upload account list file
+- `GET /api/scoring-scenarios/:id/accounts` - List accounts for a scenario
+- `GET /api/scoring-scenarios/:id/preview` - Preview account data (first 10 rows)
 
-Example frontend API call:
+### Criteria
 
-```javascript
-fetch('/api/session-state/save', {
-  method: 'POST',
-  headers: {'Content-Type': 'application/json'},
-  body: JSON.stringify({ userId, sessionId, wizard_step, state_data })
-})
-.then(response => response.json())
-.then(data => console.log(data));
-```
+- `POST /api/scoring-scenarios/:id/criteria` - Add criteria to scenario
+- `GET /api/scoring-scenarios/:id/criteria` - List criteria for scenario
+- `PUT /api/scoring-scenarios/:id/criteria/:criterionId` - Update criterion
 
-## 📊 Step 6: Data Retrieval for UI & Analytics
+### Scores
 
-Explicit API calls for data visualization:
+- `POST /api/scoring-scenarios/:id/calculate` - Calculate scores for accounts
+- `GET /api/scoring-scenarios/:id/scores` - Get scores for all accounts
+- `PUT /api/scoring-scenarios/:id/scores/:accountId` - Update score for account
 
-```javascript
-fetch('/api/datasets/query', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(filters) })
-.then(res => res.json())
-.then(data => {/* Handle data explicitly for visualization */});
-```
+## File Processing Flow
 
-## 🚨 Step 7: Error Handling, Logging & Monitoring
+1. User uploads CSV/Excel file
+2. Frontend parses file to show preview and allow column selection
+3. On submission:
+   - File is sent to backend
+   - Backend validates file format
+   - File is stored in a secure location (S3, Azure Blob Storage, etc.)
+   - File metadata is stored in `account_lists` table
+   - File is parsed and account data is extracted
+   - Initial account records are created without scores
 
-Standard JSON error handling:
+## Score Calculation Process
 
-```json
-{
-  "success": false,
-  "error": "Detailed error message"
-}
-```
+1. After criteria are defined, the scoring process starts
+2. Each account is scored against each criterion (either manually or algorithmically)
+3. Individual criterion scores are stored in `criterion_scores` table
+4. Total scores are calculated as weighted averages and stored in `account_scores` table
+5. Scenario status is updated to 'completed'
 
-### Free Monitoring Tools:
+## Technology Considerations
 
-Prometheus/Grafana for monitoring and visualization.
+### Storage Options
 
-Winston for logging within Node.js.
+- PostgreSQL for relational data
+- Amazon S3 or Azure Blob Storage for file storage
+- Redis for caching and session management
 
-## ⚙️ Step 8: Continuous Integration & Deployment (CI/CD)
+### Backend Framework
 
-### GitHub Actions:
+- Node.js with Express.js (matching current stack)
+- TypeScript for type safety
+- Prisma ORM for database interactions
 
-Explicitly define .github/workflows/ci-cd.yml:
+### File Processing
 
-```yaml
-name: CI/CD
-on:
-  push:
-    branches: [ main, develop ]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install dependencies
-        run: npm install
-      - name: Run tests
-        run: npm run test
-      - name: Build Docker containers
-        run: docker-compose build
-      - name: Deploy
-        run: docker-compose up -d
-```
+- Use streams for efficient file handling
+- Consider using worker threads or a queue system (like Bull) for processing large files
+- Implement progress tracking for long-running operations
 
-## 📅 Step 9: Scheduled Automations & Task Scheduling
+### Security
 
-### Cron Jobs: 
-Explicitly scheduled tasks for data sync, recalculation, and scoring using Cron or a task scheduling library (node-cron).
+- Implement proper authentication and authorization
+- Validate and sanitize all user inputs
+- Set up proper CORS policies
+- Use HTTPS for all API endpoints
+- Implement rate limiting
 
-```javascript
-const cron = require('node-cron');
-cron.schedule('0 0 * * *', () => {
-  // Explicit daily data synchronization task
-});
-```
+## Deployment Architecture
 
-## 📖 Step 10: User Onboarding & Documentation
+### Development
 
-Integrated guided tours using explicit frontend libraries like React Joyride.
+- Local Docker containers for services
+- GitHub Actions for CI/CD
 
-Inline documentation explicitly within the app using tooltips and help modals.
+### Production
 
-This explicitly detailed technical guide ensures your backend is fully functional, secure, and ready for integration with your frontend application workflows.
+- Backend API: AWS ECS or Azure App Service
+- Database: AWS RDS or Azure Database for PostgreSQL
+- File Storage: S3 or Azure Blob Storage
+- Caching: Redis (ElastiCache or Azure Cache for Redis)
+- Load Balancing: ALB or Azure Front Door
+
+## Monitoring and Logging
+
+- Implement centralized logging with ELK stack or similar
+- Set up application performance monitoring (APM)
+- Create dashboards for key metrics
+- Configure alerts for system issues
+
+## Development Roadmap
+
+### Phase 1: Basic Implementation
+
+- Set up database schema
+- Implement file upload and parsing
+- Create basic API endpoints
+- Implement manual scoring
+
+### Phase 2: Enhanced Features
+
+- Add automated scoring algorithms
+- Implement scoring templates
+- Add batch operations for efficiency
+- Create detailed reporting
+
+### Phase 3: Advanced Features
+
+- Implement ML-based scoring
+- Add integration with external data sources
+- Create webhook notifications
+- Add real-time collaboration features
