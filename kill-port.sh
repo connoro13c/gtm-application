@@ -1,26 +1,19 @@
 #!/bin/bash
 
-# Define the port to kill processes on
-PORT=3000
-
-echo "Looking for processes on port $PORT..."
-
-# Find process IDs using the port
-PIDS=$(lsof -i :$PORT -t)
-
-if [ -z "$PIDS" ]; then
-  echo "No processes found using port $PORT."
-else
-  echo "Found processes using port $PORT: $PIDS"
-  echo "Killing processes..."
-  
-  # Kill each process
-  for PID in $PIDS; do
-    echo "Killing process $PID"
-    kill -9 $PID
-  done
-  
-  echo "All processes on port $PORT have been terminated."
+if [ $# -eq 0 ]; then
+    echo "Please provide the port number to kill"
+    exit 1
 fi
 
-echo "Port $PORT should now be available."
+PORT=$1
+PID=$(lsof -i :$PORT -t)
+
+if [ -z "$PID" ]; then
+    echo "No process found running on port $PORT"
+    exit 0
+fi
+
+echo "Killing process $PID running on port $PORT"
+kill -9 $PID
+
+echo "Port $PORT is now available"

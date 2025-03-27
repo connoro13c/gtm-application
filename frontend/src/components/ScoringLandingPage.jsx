@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Home from './Home';
+import AccountScoringProcess from './AccountScoringProcess';
+import ScoringScenariosList from './ScoringScenariosList';
 
 const ScoringLandingPage = () => {
   const [showPulse, setShowPulse] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
   const [activeNode, setActiveNode] = useState(null);
   const [isPersistent, setIsPersistent] = useState(false);
+  const [showScoringProcess, setShowScoringProcess] = useState(false);
+  const [showScenariosList, setShowScenariosList] = useState(false);
+  const [selectedScenario, setSelectedScenario] = useState(null);
   
   // Create pulse effect on page load
   useEffect(() => {
@@ -208,6 +213,11 @@ const ScoringLandingPage = () => {
       setActiveCategory(category);
       setIsPersistent(true);
       
+      // Extra handling for Scoring & Planning
+      if (category === 'Scoring & Planning') {
+        setShowScoringProcess(true);
+      }
+      
       // Extra handling for Execution & Operations
       if (category === 'Execution & Operations') {
         // Use a timeout to ensure the DOM has updated
@@ -374,10 +384,45 @@ const ScoringLandingPage = () => {
     };
   }, [activeCategory, activeNode, isPersistent]);
 
+  // Handle the completion of the scoring process
+  const handleScoringProcessComplete = (result) => {
+    setShowScoringProcess(false);
+    console.log('Scoring process completed with result:', result);
+    // In a real app, you might update UI or show a success message
+  };
+  
+  // Handle scenarios list actions
+  const handleOpenScenariosList = () => {
+    setShowScenariosList(true);
+  };
+  
+  const handleCloseScenariosList = () => {
+    setShowScenariosList(false);
+  };
+  
+  const handleSelectScenario = (scenario) => {
+    setSelectedScenario(scenario);
+    setShowScoringProcess(true);
+  };
+
   return (
     <div className="scoring-landing-page">
       <DynamicBackground />
       {showPulse && <div className="initial-pulse" />}
+      
+      {showScoringProcess && (
+        <AccountScoringProcess 
+          onClose={handleScoringProcessComplete} 
+          initialScenario={selectedScenario} 
+        />
+      )}
+      
+      {showScenariosList && (
+        <ScoringScenariosList 
+          onSelectScenario={handleSelectScenario} 
+          onClose={handleCloseScenariosList} 
+        />
+      )}
       
       <div className="page-content">
         <motion.div 
@@ -396,6 +441,47 @@ const ScoringLandingPage = () => {
               <span>The GTM App</span>
             </h1>
             <p className="hero-subtitle">Transform your GTM with intelligent execution</p>
+            
+            <motion.div
+              className="hero-actions"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              style={{ marginTop: '24px', display: 'flex', gap: '16px' }}
+            >
+              <button 
+                onClick={() => setShowScoringProcess(true)}
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: '#F34E3F',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 6px rgba(243, 78, 63, 0.2)',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Create New Scenario
+              </button>
+              
+              <button 
+                onClick={handleOpenScenariosList}
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: 'transparent',
+                  color: '#F34E3F',
+                  border: '1px solid #F34E3F',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Load Saved Scenario
+              </button>
+            </motion.div>
           </motion.div>
         </motion.div>
         
@@ -534,8 +620,7 @@ const ScoringLandingPage = () => {
             }}
             onClick={() => {
               handleCategoryClick('Scoring & Planning');
-              // Navigate to enhanced scoring page
-              window.location.href = '/enhanced-combined';
+              // Don't navigate away, the scoring process will show as a modal
             }}
             onMouseEnter={() => {
               console.log('Force highlighting Scoring & Planning nodes');

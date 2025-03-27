@@ -359,26 +359,26 @@ tr:last-child td {
 
 /* Column coloring */
 .selected-id-column {
-  background-color: rgba(55, 55, 242, 0.1) !important;
-  border-left: 3px solid #3737F2 !important;
-  color: #3737F2 !important;
+  background-color: rgba(65, 105, 225, 0.1) !important;
+  border-left: 3px solid #4169E1 !important;
+  color: #4169E1 !important;
 }
 
 .selected-name-column {
-  background-color: rgba(243, 78, 63, 0.1) !important;
-  border-left: 3px solid #F34E3F !important;
-  color: #F34E3F !important;
+  background-color: rgba(227, 66, 52, 0.1) !important;
+  border-left: 3px solid #E34234 !important;
+  color: #E34234 !important;
 }
 
 .suggested-id-column {
-  box-shadow: 0 0 0 2px #3737F2, 0 0 10px rgba(55, 55, 242, 0.5);
+  box-shadow: 0 0 0 2px #4169E1, 0 0 10px rgba(65, 105, 225, 0.5);
   animation: suggestPulse 2s infinite;
   z-index: 2;
   position: relative;
 }
 
 .suggested-name-column {
-  box-shadow: 0 0 0 2px #F34E3F, 0 0 10px rgba(243, 78, 63, 0.5);
+  box-shadow: 0 0 0 2px #E34234, 0 0 10px rgba(227, 66, 52, 0.5);
   animation: suggestPulse 2s infinite;
   z-index: 2;
   position: relative;
@@ -397,27 +397,29 @@ tr:last-child td {
   background-color: #f8f9fa;
   border-radius: 8px;
   border: 1px solid #EFEFEF;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   color: #000000;
+  padding: 4px 0;
 }
 
 .legend-color {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
 }
 
 .id-color {
-  background-color: #3737F2;
+  background-color: #4169E1; /* Royal Blue */
 }
 
 .name-color {
-  background-color: #F34E3F;
+  background-color: #E34234; /* Vermilion Red */
 }
 
 /* Suggestion UI */
@@ -509,13 +511,13 @@ tr:last-child td {
 }
 
 .id-selection {
-  background-color: rgba(55, 55, 242, 0.05);
-  border: 1px solid rgba(55, 55, 242, 0.2);
+  background-color: rgba(65, 105, 225, 0.05);
+  border: 1px solid rgba(65, 105, 225, 0.2);
 }
 
 .name-selection {
-  background-color: rgba(243, 78, 63, 0.05);
-  border: 1px solid rgba(243, 78, 63, 0.2);
+  background-color: rgba(227, 66, 52, 0.05);
+  border: 1px solid rgba(227, 66, 52, 0.2);
 }
 
 .selection-instructions svg {
@@ -622,9 +624,9 @@ tr:last-child td {
 
 /* Animations */
 @keyframes suggestPulse {
-  0% { box-shadow: 0 0 0 2px #2C5282, 0 0 10px rgba(44, 82, 130, 0.2); }
-  50% { box-shadow: 0 0 0 2px #2C5282, 0 0 20px rgba(44, 82, 130, 0.4); }
-  100% { box-shadow: 0 0 0 2px #2C5282, 0 0 10px rgba(44, 82, 130, 0.2); }
+  0% { box-shadow: 0 0 0 2px rgba(65, 105, 225, 0.7), 0 0 5px rgba(65, 105, 225, 0.2); }
+  50% { box-shadow: 0 0 0 2px rgba(65, 105, 225, 0.9), 0 0 10px rgba(65, 105, 225, 0.4); }
+  100% { box-shadow: 0 0 0 2px rgba(65, 105, 225, 0.7), 0 0 5px rgba(65, 105, 225, 0.2); }
 }
 
 /* Loading indicator */

@@ -1,0 +1,262 @@
+/* ScoringScenariosList.css */
+
+.scenarios-list-container {
+  background-color: #ffffff;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.scenarios-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #F34E3F 0%, #FFA293 100%);
+  color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.scenarios-list-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.scenarios-list-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.loading-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(243, 78, 63, 0.2);
+  border-radius: 50%;
+  border-top-color: #F34E3F;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-indicator p {
+  color: #4A5568;
+  margin: 0;
+}
+
+.error-message {
+  background-color: #FFF5F5;
+  border: 1px solid #FED7D7;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  color: #C53030;
+  margin: 20px 0;
+}
+
+.error-message p {
+  margin: 0 0 16px 0;
+}
+
+.retry-button {
+  background-color: #F34E3F;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.retry-button:hover {
+  background-color: #E23E2F;
+  transform: translateY(-2px);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #718096;
+}
+
+.empty-state p {
+  margin: 0 0 20px 0;
+  font-size: 16px;
+}
+
+.create-scenario-button {
+  background-color: #F34E3F;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.create-scenario-button:hover {
+  background-color: #E23E2F;
+  transform: translateY(-2px);
+}
+
+.scenarios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.scenario-card {
+  background-color: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.scenario-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-color: #CBD5E0;
+}
+
+.scenario-card.selected {
+  border-color: #F34E3F;
+  box-shadow: 0 5px 15px rgba(243, 78, 63, 0.15);
+}
+
+.scenario-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background-color: #F34E3F;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.scenario-card.selected::before {
+  opacity: 1;
+}
+
+.scenario-card h3 {
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2D3748;
+}
+
+.scenario-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.scenario-meta .date {
+  font-size: 14px;
+  color: #718096;
+}
+
+.scenario-action {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.load-scenario-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #F34E3F;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.load-scenario-button:hover {
+  background-color: #E23E2F;
+}
+
+.card-hint {
+  font-size: 14px;
+  color: #A0AEC0;
+  font-style: italic;
+}
+
+.scenarios-list-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #E2E8F0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cancel-button {
+  padding: 10px 20px;
+  background-color: white;
+  border: 1px solid #CBD5E0;
+  border-radius: 8px;
+  font-weight: 500;
+  color: #4A5568;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-button:hover {
+  background-color: #F7FAFC;
+  transform: translateY(-2px);
+}

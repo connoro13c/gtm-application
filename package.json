@@ -16,8 +16,18 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "kill-port": "./kill-port.sh",
-    "start": "npm run kill-port && node server.js",
-    "dev": "npm run kill-port && cd frontend && npm run dev"
+    "start": "./start-application.sh",
+    "start:legacy": "npm run kill-port && node server.js",
+    "dev": "npm run kill-port && cd frontend && npm run dev",
+    "start:docker": "docker-compose up",
+    "init:db": "./initialize-database.sh",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "start:frontend:prod": "cd frontend && npm run start",
+    "docker:check": "./docker-check.sh",
+    "docker:reset": "./reset-docker.sh",
+    "docker:rebuild": "./reset-docker.sh && docker-compose build --no-cache"
   },
   "keywords": [],
   "author": "",

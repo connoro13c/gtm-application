@@ -1,0 +1,542 @@
+/* AccountScoringWorkflow.css */
+
+.account-scoring-workflow {
+  background-color: #ffffff;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 1000px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.workflow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #F34E3F 0%, #FFA293 100%);
+  color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.workflow-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.workflow-progress {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.step-indicator {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #DDDDDD;
+  color: #4A4A4A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-bottom: 8px;
+  border: 2px solid #DDDDDD;
+  transition: all 0.3s ease;
+}
+
+.step-indicator.active {
+  background: linear-gradient(135deg, #F34E3F 0%, #FF7867 100%);
+  color: white;
+  border-color: #F34E3F;
+  box-shadow: 0 0 0 4px rgba(243, 78, 63, 0.2);
+}
+
+.step-label {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.progress-connector {
+  flex: 1;
+  height: 2px;
+  background-color: #e9ecef;
+  margin: 0 8px 24px;
+  z-index: 1;
+}
+
+.workflow-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.workflow-step {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.workflow-step h3 {
+  font-size: 20px;
+  margin: 0 0 8px 0;
+  color: #1A202C;
+}
+
+.workflow-step p {
+  color: #4A5568;
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+}
+
+/* Step 1: Scoring Rules */
+.scoring-rules-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.criterion-rules {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #EFEFEF;
+}
+
+.criterion-rules h4 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #2D3748;
+}
+
+.criterion-rules p {
+  font-size: 14px;
+  color: #718096;
+  margin: 0 0 16px 0;
+}
+
+.level-inputs {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.level-input {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.level-input label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4A5568;
+}
+
+.level-input input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #CBD5E0;
+  border-radius: 8px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.rules-overview {
+  background-color: #ebf8ff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+  border-left: 4px solid #3182ce;
+}
+
+.rules-overview h4 {
+  margin: 0 0 12px 0;
+  color: #2C5282;
+  font-size: 16px;
+}
+
+.rules-overview ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #2D3748;
+}
+
+.rules-overview li {
+  margin-bottom: 6px;
+}
+
+/* Step 2: Scoring Table */
+.scoring-table-container {
+  overflow-x: auto;
+  border: 1px solid #DDDDDD;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.scoring-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.scoring-table th {
+  background-color: #f8f9fa;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid #DDDDDD;
+  white-space: nowrap;
+}
+
+.scoring-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid #EFEFEF;
+  vertical-align: middle;
+}
+
+.scoring-table tr:last-child td {
+  border-bottom: none;
+}
+
+.scoring-table .account-name {
+  font-weight: 500;
+  color: #2D3748;
+}
+
+.scoring-table .total-score {
+  font-weight: 600;
+  color: #4A5568;
+}
+
+.scoring-table select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #CBD5E0;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.scoring-table select.level-low {
+  background-color: rgba(244, 67, 54, 0.1);
+  border-color: #F44336;
+  color: #B71C1C;
+}
+
+.scoring-table select.level-medium {
+  background-color: rgba(255, 193, 7, 0.1);
+  border-color: #FFC107;
+  color: #F57F17;
+}
+
+.scoring-table select.level-high {
+  background-color: rgba(76, 175, 80, 0.1);
+  border-color: #4CAF50;
+  color: #1B5E20;
+}
+
+.tier-label {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  color: white;
+  font-weight: 500;
+  font-size: 12px;
+  text-align: center;
+  min-width: 60px;
+}
+
+.scoring-progress {
+  text-align: center;
+  margin-top: 20px;
+  font-weight: 500;
+  color: #4A5568;
+}
+
+/* Step 3: Review */
+.score-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.summary-card {
+  background-color: white;
+  border: 1px solid #EFEFEF;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.summary-card h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #4A5568;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2D3748;
+}
+
+.tier-high {
+  color: #4CAF50;
+}
+
+.tier-medium {
+  color: #FFC107;
+}
+
+.tier-low {
+  color: #F44336;
+}
+
+.top-accounts {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.top-accounts h4 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  color: #2D3748;
+}
+
+.top-accounts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.top-accounts-table th {
+  background-color: rgba(0, 0, 0, 0.03);
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid #DDDDDD;
+}
+
+.top-accounts-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid #EFEFEF;
+}
+
+.top-accounts-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Step 4: Export */
+.export-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.export-option {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #EFEFEF;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.export-option:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  border-color: #F34E3F;
+}
+
+.export-icon {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4A5568;
+}
+
+.export-icon.salesforce {
+  color: #1589EE;
+}
+
+.export-icon.hubspot {
+  color: #FF7A59;
+}
+
+.export-details h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  color: #2D3748;
+}
+
+.export-details p {
+  margin: 0;
+  font-size: 14px;
+  color: #718096;
+}
+
+.export-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  margin-top: 20px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(243, 78, 63, 0.2);
+  border-radius: 50%;
+  border-top-color: #F34E3F;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Footer */
+.workflow-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid #DDDDDD;
+  background-color: #F8F8F8;
+}
+
+.back-button, .next-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  min-width: 120px;
+  height: 40px;
+}
+
+.back-button {
+  border: 1px solid #DDDDDD;
+  background-color: #fff;
+  color: #202020;
+}
+
+.back-button:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-2px);
+}
+
+.next-button {
+  background: linear-gradient(135deg, #F34E3F 0%, #FF7867 100%);
+  color: white;
+  border: none;
+  box-shadow: 0px 4px 10px rgba(243, 78, 63, 0.2);
+}
+
+.next-button:hover {
+  background: linear-gradient(135deg, #dc372a 0%, #e56a59 100%);
+  transform: translateY(-2px);
+  box-shadow: 0px 6px 15px rgba(243, 78, 63, 0.3);
+}
+
+.back-button:disabled, .next-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .scoring-rules-container,
+  .score-summary,
+  .export-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .level-inputs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .workflow-progress {
+    overflow-x: auto;
+    padding: 16px 0;
+  }
+  
+  .workflow-footer {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .workflow-footer > div {
+    width: 100%;
+  }
+  
+  .back-button, .next-button {
+    width: 100%;
+  }
+}

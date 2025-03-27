@@ -1,26 +1,22 @@
 # Project Memory
 
 ## Commands
-- Build: `npm run build` (both frontend and backend)
-- Test: `npm run test` (all tests), `npm run test:watch` (watch mode)
-- Lint: `npm run lint` (check), `npm run lint:fix` (auto-fix)
+- Build: `npm run start` (full stack), `npm run build:frontend` (frontend only)
+- Test: Backend: `cd backend && npm run test`, Frontend: `cd frontend && npm test -- --testPathPattern=ComponentName` (single test)
+- Lint: Not explicitly defined, but could use standard ESLint setup
 
 ## Code Style
-- React: Functional components with hooks (no classes)
-- Component naming: PascalCase (e.g., UserList)
-- Functions/utils: camelCase (e.g., fetchUserData)
-- Components follow single-responsibility principle
-- Styling: Tailwind CSS
-- State management: Zustand
+- React: Functional components with hooks preferred
+- Naming: PascalCase for components, camelCase for functions/variables
+- Imports: Group React/libraries first, then components, then styles
+- CSS: Component-scoped CSS files with matching names (Component.jsx, Component.css)
+- Testing: Jest + React Testing Library (frontend), Jest + Supertest (backend)
+- Target: 80%+ code coverage
 
 ## Tech Stack
-- Frontend: React, Tailwind CSS, shadcn/ui, Framer Motion, Recharts
-- Backend: Node.js with Express.js, PostgreSQL, Prisma
-- Authentication: Auth0 or JWT
-- ML: Python, scikit-learn, RandomForest, XGBoost
-
-## Testing Frameworks
-- Frontend: Jest, React Testing Library
-- Backend: Jest, Supertest
-- E2E: Cypress
-- Target: 80%+ code coverage
+- Frontend: React, React Router, Framer Motion, Vite
+- Backend: Express.js, PostgreSQL, TypeORM
+- ML Service: Python (likely Flask or FastAPI)
+- Authentication: JWT
+- Testing: Jest, React Testing Library, Cypress (E2E)
+- CI/CD: Appears to use Docker for containerization

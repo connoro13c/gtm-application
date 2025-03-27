@@ -1,9 +1,21 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const app = express();
 
-// Serve static files from this directory
-app.use(express.static(__dirname));
+// Check if dist directory exists (production build)
+const distDir = path.join(__dirname, 'dist');
+const isDistDirExist = fs.existsSync(distDir);
+
+if (isDistDirExist) {
+  console.log('Serving production build from dist directory');
+  // Serve static files from the dist directory
+  app.use(express.static(distDir));
+} else {
+  console.log('No production build found, serving from root directory');
+  // Serve static files from this directory
+  app.use(express.static(__dirname));
+}
 
 // Simple logging for debugging
 app.use((req, res, next) => {
@@ -18,10 +30,18 @@ app.get('/test', (req, res) => {
 
 // For all other routes, serve index.html
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  if (isDistDirExist) {
+    res.sendFile(path.join(distDir, 'index.html'));
+  } else {
+    res.sendFile(path.join(__dirname, 'index.html'));
+  }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
+  if (!isDistDirExist) {
+    console.log('WARNING: Running without a production build!');
+    console.log('For production, run: npm run build');
+  }
 });

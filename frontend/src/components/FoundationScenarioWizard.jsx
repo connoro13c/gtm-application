@@ -399,6 +399,7 @@ const FoundationScenarioWizard = ({ onClose }) => {
     const scenarioData = {
       scenarioName,
       accountFile,
+      fileData: filePreviewData,
       columnMapping: {
         idColumn: selectedIdColumn,
         nameColumn: selectedNameColumn
@@ -412,27 +413,10 @@ const FoundationScenarioWizard = ({ onClose }) => {
     
     console.log('Saving scenario:', scenarioData);
     
-    // TODO: In a real app, we would send this data to the backend API
-    // Example API call:
-    // 
-    // fetch('/api/scoring-scenarios', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify(scenarioData)
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //   console.log('Success:', data);
-    //   onClose();
-    // })
-    // .catch(error => {
-    //   console.error('Error:', error);
-    //   setFileError('Failed to create scenario. Please try again.');
-    // });
-    
-    onClose();
+    // Pass the scenario data to the parent component to proceed to scoring workflow
+    if (typeof onClose === 'function') {
+      onClose(scenarioData);
+    }
   };
 
   // Handle component mounting

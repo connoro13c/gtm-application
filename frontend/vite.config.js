@@ -1,17 +1,17 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
-    open: true,
     port: 3000,
-    host: true  // Allow connections from IP addresses
+    open: true,
+    cors: true
   },
   build: {
-    target: 'es2015', // Ensure backward compatibility
-    modulePreload: {
-      polyfill: true
-    }
+    outDir: 'dist',
+    sourcemap: true
   }
-});
+})
